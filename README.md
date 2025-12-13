@@ -125,35 +125,6 @@ las paredes. De repente, escuchas pasos aproximándose..."
 
 ---
 
-## 🗂️ Estructura del Proyecto
-
-### Estructura Actual
-
-```
-GenUI-Rol/
-└── README.md                  # Documentación del proyecto
-```
-
-### Estructura Propuesta (En desarrollo)
-
-Una vez inicializado el proyecto Flutter, se seguirá esta estructura:
-
-```
-GenUI-Rol/
-├── lib/
-│   ├── main.dart              # Punto de entrada de la aplicación
-│   ├── models/                # Modelos de datos
-│   ├── screens/               # Pantallas de la aplicación
-│   ├── widgets/               # Widgets reutilizables
-│   ├── services/              # Servicios (API, almacenamiento)
-│   └── utils/                 # Utilidades y helpers
-├── assets/                    # Recursos (imágenes, fuentes)
-├── test/                      # Tests unitarios y de widgets
-└── pubspec.yaml              # Dependencias del proyecto
-```
-
----
-
 ## 🤝 Contribuir
 
 ¡Las contribuciones son bienvenidas! Si quieres mejorar GenUI-Rol:

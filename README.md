@@ -86,7 +86,7 @@ flutter pub get
 
 Crea un archivo `.env` en la raíz del proyecto:
 ```env
-GEMINI_API_KEY=tu_api_key_aqui
+GEMINI_API_KEY=tu_api_key_aquí
 ```
 
 4. **Verifica la instalación**

@@ -127,6 +127,17 @@ las paredes. De repente, escuchas pasos aproximándose..."
 
 ## 🗂️ Estructura del Proyecto
 
+### Estructura Actual
+
+```
+GenUI-Rol/
+└── README.md                  # Documentación del proyecto
+```
+
+### Estructura Propuesta (En desarrollo)
+
+Una vez inicializado el proyecto Flutter, se seguirá esta estructura:
+
 ```
 GenUI-Rol/
 ├── lib/

@@ -1,0 +1,1163 @@
+{
+  "accept": "Accept",
+  "@accept": {
+    "description": "Accept button"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "edit_shop": "Edit Shop",
+  "@edit_shop": {
+    "description": "Text for edit shop"
+  },
+  "shop_name": "Shop Name",
+  "@shop_name": {
+    "description": "Label for shop name"
+  },
+  "shop_direction": "Shop Address",
+  "@shop_direction": {
+    "description": "Label for shop address"
+  },
+  "shop_delete": "Delete Shop",
+  "@shop_delete": {
+    "description": "Button for deleting shop"
+  },
+  "add_profile_image": "Add a profile image",
+  "@add_profile_image": {
+    "description": "Add a profile image"
+  },
+  "camera": "Camera",
+  "@camera": {
+    "description": "Label for camera option"
+  },
+  "gallery": "Gallery",
+  "@gallery": {
+    "description": "Label for gallery option"
+  },
+  "login_to_continue": "Login to continue",
+  "@login_to_continue": {
+    "description": "Prompt to login to continue"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Label for email input"
+  },
+   "password": "Password",
+  "@password": {
+    "description": "Label for password input"
+  },
+   "please_enter_your_password": "Please enter your password",
+  "@please_enter_your_password": {
+    "description": "Prompt to enter the password"
+  },
+  "you_forgot_your_password": "You forgot your password?",
+  "@you_forgot_your_password": {
+    "description": "Prompt for forgotten password"
+  },
+  "dont_have_an_account_register_here": "Don't have an account? Register here",
+  "@dont_have_an_account_register_here": {
+    "description": "Prompt to register if the user doesn't have an account"
+  },
+    "sign_in_to_continue": "Sign in to continue",
+  "@sign_in_to_continue": {
+    "description": "Prompt to sign in to continue"
+  },
+  "username": "Username",
+  "@username": {
+    "description": "Label for username input"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Label for name input"
+  },
+    "confirmation_password": "Confirmation Password",
+  "@confirmation_password": {
+    "description": "Label for confirmation password input"
+  },
+  "table_number": "Table: {tableNumber}",
+  "@table_number": {
+    "description": "Label for table number",
+    "placeholders": {
+      "tableNumber": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+   "error": "Error",
+  "@error": {
+    "description": "Label for error message"
+  },
+   "available_reservations": "Available Reservations",
+  "@available_reservations": {
+    "description": "Label for available reservations"
+  },
+   "filter_by_date": "Filter by date",
+  "@filter_by_date": {
+    "description": "Label for filtering by date"
+  },
+  "available_reservations_for_date": "Available Reservations for: {date}",
+  "@available_reservations_for_date": {
+    "description": "Label for available reservations for a specific date",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2023-10-15"
+      }
+    }
+  },
+  "shop_name": "Shop {shopName}",
+  "@shop_name": {
+    "description": "Label for shop name",
+    "placeholders": {
+      "shopName": {
+        "type": "String",
+        "example": "Best Shop"
+      }
+    }
+  },
+  "shop_reviews": "Shop Reviews",
+  "@shop_reviews": {
+    "description": "Label for shop reviews"
+  },
+  "rating": "Rating:",
+  "@rating": {
+    "description": "Label for rating"
+  },
+  "all_reviews": "All Reviews",
+  "@all_reviews": {
+    "description": "Label for all reviews"
+  },
+   "available_tables": "Available Tables",
+  "@available_tables": {
+    "description": "Label for available tables"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Label for save button"
+  },
+  "google_login": "Google Login",
+  "@google_login": {
+    "description": "Label for Google login button"
+  },
+   "login": "Login",
+  "@login": {
+    "description": "Label for login button"
+  },
+  "email_or_username_exists": "The email or username already exists in the database",
+  "@email_or_username_exists": {
+    "description": "Error message indicating that the email or username already exists"
+  },
+   "register": "Register",
+  "@register": {
+    "description": "Label for register button"
+  },
+  "update": "Update",
+  "@update": {
+    "description": "Label for update button"
+  }, 
+   "reserve_day": "Reserve day: {dayDate}",
+  "@reserve_day": {
+    "description": "Label for reserve day",
+    "placeholders": {
+      "dayDate": {
+        "type": "String",
+        "example": "2023-10-15"
+      }
+    }
+  },
+    "game_description": "Game: {gameDescription}",
+  "@game_description": {
+    "description": "Label for game description",
+    "placeholders": {
+      "gameDescription": {
+        "type": "String",
+        "example": "Chess"
+      }
+    }
+  },
+  "total_players_at_table": "Total players at table: {currentPlayers} of {totalPlaces}",
+  "@total_players_at_table": {
+    "description": "Label for total players at table",
+    "placeholders": {
+      "currentPlayers": {
+        "type": "int",
+        "example": "4"
+      },
+      "totalPlaces": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+   "start_time": "Start time:",
+  "@start_time": {
+    "description": "Label for start time"
+  },
+  "end_time": "End time: ",
+  "@end_time": {
+    "description": "Label for end time"
+  },
+  "anonymous": "Anonymous",
+  "@anonymous": {
+    "description": "Label for anonymous user"
+  },
+  "total_seats_at_table": "Total Seats at Table",
+  "@total_seats_at_table": {
+    "description": "Label for total seats at table"
+  },
+    "start_time_hh_mm": "Start time (HH:MM)",
+  "@start_time_hh_mm": {
+    "description": "Label for start time with format HH:MM"
+  },
+    "end_time_hh_mm": "End time (HH:MM)",
+  "@end_time_hh_mm": {
+    "description": "Label for end time with format HH:MM"
+  },
+   "description": "Description",
+  "@description": {
+    "description": "Label for description input"
+  },
+    "required_material": "Required Material",
+  "@required_material": {
+    "description": "Label for required material input"
+  },
+   "difficulty": "Difficulty",
+  "@difficulty": {
+    "description": "Label for difficulty selection"
+  },
+    "game_category": "Game Category",
+  "@game_category": {
+    "description": "Label for game category selection"
+  },
+  "game": "Game",
+  "@game": {
+    "description": "Label for game selection"
+  },
+    "add_review": "Add Review",
+  "@add_review": {
+    "description": "Label for add review button"
+  },
+  "please_write_a_description": "Please write a description",
+  "@please_write_a_description": {
+    "description": "Prompt to write a description"
+  },
+   "rating": "Rating",
+  "@rating": {
+    "description": "Label for rating input"
+  },
+  "create_new_table": "Create New Table",
+  "@create_new_table": {
+    "description": "Label for creating a new table"
+  },
+  "edit_table": "Edit Table",
+  "@edit_table": {
+    "description": "Label for editing a table"
+  },
+  "table_number_text": "Table Number",
+  "@table_number_text": {
+    "description": "Label for table number input"
+  },
+  "delete_table": "Delete Table",
+  "@delete_table": {
+    "description": "Label for deleting a table"
+  },
+  "manage_reservations": "Manage Reservations",
+  "@manage_reservations": {
+    "description": "Label for managing reservations"
+  },
+   "confirm_delete_shop": "Are you sure you want to delete the shop?",
+  "@confirm_delete_shop": {
+    "description": "Confirmation message for deleting a shop"
+  },
+  "email_sent_reset_password": "An email has been sent to your email to reset your password",
+  "@email_sent_reset_password": {
+    "description": "Message indicating that an email has been sent to reset the password"
+  },
+  "user_logout": "User Logout",
+  "@user_logout": {
+    "description": "Label for user logout"
+  },
+   "confirm_logout": "Are you sure you want to log out of the application?",
+  "@confirm_logout": {
+    "description": "Confirmation message for logging out of the application"
+  },
+  "reset_password": "Reset Password",
+  "@reset_password": {
+    "description": "Label for reset password"
+  },
+   "enter_your_email_to_reset_password": "Enter your email to reset your password",
+  "@enter_your_email_to_reset_password": {
+    "description": "Prompt to enter email to reset password"
+  },
+   "change_password": "Change Password",
+  "@change_password": {
+    "description": "Label for change password"
+  },
+  "current_password": "Current Password",
+  "@current_password": {
+    "description": "Label for current password input"
+  },
+"new_password": "New Password",
+  "@new_password": {
+    "description": "Label for new password input"
+  },
+    "user_settings": "User Settings",
+  "@user_settings": {
+    "description": "Label for user settings"
+  },
+  "delete_table": "Delete Table",
+  "@delete_table": {
+    "description": "Label for deleting a table"
+  },
+  "confirm_delete_table": "Are you sure you want to delete the table?",
+  "@confirm_delete_table": {
+    "description": "Confirmation message for deleting a table"
+  },
+   "active_game": "Active game: {gameId}",
+  "@active_game": {
+    "description": "Label for active game",
+    "placeholders": {
+      "gameId": {
+        "type": "String",
+        "example": "12345"
+      }
+    }
+  },
+  "schedule": "Schedule:",
+  "@schedule": {
+    "description": "Label for schedule"
+  },
+    "day_schedule": "Day: {dayDate}  {startTime} - {endTime}",
+  "@day_schedule": {
+    "description": "Label for day schedule",
+    "placeholders": {
+      "dayDate": {
+        "type": "String",
+        "example": "2023-10-15"
+      },
+      "startTime": {
+        "type": "String",
+        "example": "18:00"
+      },
+      "endTime": {
+        "type": "String",
+        "example": "20:00"
+      }
+    }
+  },
+  "free_places": "{freePlaces} free places",
+  "@free_places": {
+    "description": "Label for free places",
+    "placeholders": {
+      "freePlaces": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "additional_information": "Additional Information:",
+  "@additional_information": {
+    "description": "Label for additional information"
+  },
+   "exit": "Exit",
+  "@exit": {
+    "description": "Label for exit button"
+  },
+  "join": "Join",
+  "@join": {
+    "description": "Label for join button"
+  },
+  "edit_tables": "Edit Tables",
+  "@edit_tables": {
+    "description": "Label for edit tables button"
+  },
+   "total_tables": "Total Tables: {totalTables}",
+  "@total_tables": {
+    "description": "Label for total tables",
+    "placeholders": {
+      "totalTables": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+   "reservations": "Reservations: {reservationsCount}",
+  "@reservations": {
+    "description": "Label for reservations count",
+    "placeholders": {
+      "reservationsCount": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "reservations": "Reservations: {reservationsCount}",
+  "@reservations": {
+    "description": "Label for reservations count",
+    "placeholders": {
+      "reservationsCount": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "welcome_user": "Welcome {username}!",
+  "@welcome_user": {
+    "description": "Welcome message for the user",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "all_available_shops": "These are all the available shops.",
+  "@all_available_shops": {
+    "description": "Message indicating all available shops"
+  },
+  "shops_registered_in_your_name": "Shops registered in your name:",
+  "@shops_registered_in_your_name": {
+    "description": "Label for shops registered in the user's name"
+  },
+  "no_shops": "You have no shops",
+  "@no_shops": {
+    "description": "Message indicating the user has no shops"
+  },
+   "remove_filters": "Remove Filters",
+  "@remove_filters": {
+    "description": "Label for remove filters button"
+  },
+  "filter": "Filter",
+  "@filter": {
+    "description": "Label for filter button"
+  },
+  "filter_free_tables": "Filter Free Tables",
+  "@filter_free_tables": {
+    "description": "Label for filter free tables button"
+  },
+  "find_your_game_table": "Find your game table",
+  "@find_your_game_table": {
+    "description": "Label for finding your game table"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Label for home"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Label for settings"
+  },
+   "change_password": "Change Password",
+  "@change_password": {
+    "description": "Label for change password"
+  },
+  "help": "Help",
+  "@help": {
+    "description": "Label for help"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Label for logout"
+  },
+  "shop_name_text": "Shop Name",
+  "@shop_name_text": {
+    "description": "Label for shop name"
+  },
+  "shop_location": "Shop Location",
+  "@shop_location": {
+    "description": "Label for shop location"
+  },
+  "error_loading_reservations": "Error loading reservations",
+  "@error_loading_reservations": {
+    "description": "Error message for loading reservations"
+  },
+  "date": "Date",
+  "@date": {
+    "description": "Label for date"
+  },
+  "start_time_must_be_less_than_end_time": "Start time must be less than end time",
+  "@start_time_must_be_less_than_end_time": {
+    "description": "Error message indicating start time must be less than end time"
+  },
+  "end_time_must_be_greater_than_start_time": "End time must be greater than start time",
+  "@end_time_must_be_greater_than_start_time": {
+    "description": "Error message indicating end time must be greater than start time"
+  },
+  "available_tables": "Available Tables:",
+  "@available_tables": {
+    "description": "Label for available tables"
+  },
+  "time_already_taken_that_day": "The time is already taken that day",
+  "@time_already_taken_that_day": {
+    "description": "Error message indicating the time is already taken that day"
+  },
+  "required_field": "Required field",
+  "@required_field": {
+    "description": "Error message indicating a required field"
+  },
+  "must_be_a_number": "Must be a number",
+  "@must_be_a_number": {
+    "description": "Error message indicating the field must be a number"
+  },
+  "format_must_be_hh_mm": "The format must be HH:MM",
+  "@format_must_be_hh_mm": {
+    "description": "Error message indicating the format must be HH:MM"
+  },
+  "name_already_in_use": "The name is already in use.",
+  "@name_already_in_use": {
+    "description": "Error message indicating the name is already in use"
+  },
+  "email_already_in_use": "The email is already in use.",
+  "@email_already_in_use": {
+    "description": "Error message indicating the email is already in use"
+  },
+  "password_must_be_at_least_8_characters": "The password must be at least 8 characters long",
+  "@password_must_be_at_least_8_characters": {
+    "description": "Error message indicating the password must be at least 8 characters long"
+  },
+  "password_must_contain_at_least_one_number": "The password must contain at least one number",
+  "@password_must_contain_at_least_one_number": {
+    "description": "Error message indicating the password must contain at least one number"
+  },
+  "password_must_contain_at_least_one_uppercase_letter": "The password must contain at least one uppercase letter",
+  "@password_must_contain_at_least_one_uppercase_letter": {
+    "description": "Error message indicating the password must contain at least one uppercase letter"
+  },
+  "password_must_contain_at_least_one_lowercase_letter": "The password must contain at least one lowercase letter",
+  "@password_must_contain_at_least_one_lowercase_letter": {
+    "description": "Error message indicating the password must contain at least one lowercase letter"
+  },
+  "passwords_do_not_match": "The passwords do not match",
+  "@passwords_do_not_match": {
+    "description": "Error message indicating the passwords do not match"
+  },
+   "password_is_incorrect": "The password is incorrect",
+  "@password_is_incorrect": {
+    "description": "Error message indicating the password is incorrect"
+  },
+  "error_validating_password": "Error validating the password",
+  "@error_validating_password": {
+    "description": "Error message indicating an error occurred while validating the password"
+  },
+  "must_be_a_number": "Must be a number",
+  "@must_be_a_number": {
+    "description": "Error message indicating the field must be a number"
+  },
+  "table_number_already_exists": "The table number already exists",
+  "@table_number_already_exists": {
+    "description": "Error message indicating the table number already exists"
+  },
+  "players": "Players",
+  "@players": {
+    "description": "Label for players"
+  },
+  "email_invalid": "Email Invalid",
+  "@email_invalid": {
+    "description": "Error message indicating the field must be an email"
+  },
+   "changeLanguage": "Change Language",
+   "@changeLanguage":{
+    "description" : "Text for chaning language"
+   }
+  ,
+  "update": "Update",
+  "@update": {
+    "description": "Label for update button"
+  },
+  "go_to_events": "Go to Events",
+  "@go_to_events": {
+    "description": "Label for going to events"
+  },
+  "events": "Events",
+  "@events": {
+    "description": "Label for events"
+  },
+  "your_reservations": "Your Reservations",
+  "@your_reservations": {
+    "description": "Label for your reservations"
+  },
+  "select_tables_to_occupy": "Select the tables to occupy",
+  "@select_tables_to_occupy": {
+    "description": "Prompt to select the tables to occupy"
+  },
+  "select_start_date": "Select the start date of the event",
+  "@select_start_date": {
+    "description": "Help text for selecting the start date of the event"
+  },
+  "start_date_not_selected": "Start date not selected",
+  "@start_date_not_selected": {
+    "description": "Error message for start date not selected"
+  },
+  "start_time_not_selected": "Start time not selected",
+  "@start_time_not_selected": {
+    "description": "Error message for start time not selected"
+  },
+  "select_end_date": "Select the end date of the event",
+  "@select_end_date": {
+    "description": "Help text for selecting the end date of the event"
+  },
+  "end_date_not_selected": "End date not selected",
+  "@end_date_not_selected": {
+    "description": "Error message for end date not selected"
+  },
+  "end_date_before_start_date": "End date cannot be before start date",
+  "@end_date_before_start_date": {
+    "description": "Error message for end date before start date"
+  },
+  "event_same_day": "The event must be on the same day",
+  "@event_same_day": {
+    "description": "Error message for event must be on the same day"
+  },
+  "end_time_not_selected": "End time not selected",
+  "@end_time_not_selected": {
+    "description": "Error message for end time not selected"
+  },
+  "game_session_not_started": "The game session has not started yet",
+  "@game_session_not_started": {
+    "description": "Message indicating the game session has not started"
+  },
+  "wrong_reservation_table": "Wrong reservation table",
+  "@wrong_reservation_table": {
+    "description": "Error message indicating the reservation table is wrong"
+  },
+  "scan_again": "Scan Again",
+  "@scan_again": {
+    "description": "Label for scan again button"
+  },
+  "grant_camera_permission": "Grant camera permission",
+  "@grant_camera_permission": {
+    "description": "Label for granting camera permission"
+  },
+  "location_service_disabled": "Location service is disabled.",
+  "@location_service_disabled": {
+    "description": "Message indicating that the location service is disabled"
+  },
+  "location_permission_denied": "Location permissions are denied.",
+  "@location_permission_denied": {
+    "description": "Message indicating that the location permissions are denied"
+  },
+  "location_permission_denied_permanently": "Location permissions are permanently denied.",
+  "@location_permission_denied_permanently": {
+    "description": "Message indicating that the location permissions are permanently denied"
+  },
+  "reservation_confirmed": "Your reservation has been confirmed!",
+  "@reservation_confirmed": {
+    "description": "Message indicating that the reservation has been confirmed"
+  },
+  "not_in_shop_location": "You are not in the shop location",
+  "@not_in_shop_location": {
+    "description": "Message indicating the user is not in the shop location"
+  },
+  "game_event": "Game Event: {gameEvent}",
+  "@game_event": {
+    "description": "Label for game event",
+    "placeholders": {
+      "gameEvent": {
+        "type": "String",
+        "example": "Chess Tournament"
+      }
+    }
+  },
+  "event_day_date": "Event: {dayDate}",
+  "@event_day_date": {
+    "description": "Label for event day date",
+    "placeholders": {
+      "dayDate": {
+        "type": "String",
+        "example": "2023-10-15"
+      }
+    }
+  },
+  "reserva_confirmada": "Reservation Confirmed",
+  "@reserva_confirmada": {
+    "description": "Message indicating that the reservation has been confirmed in Spanish"
+  },
+  "select_your_location_on_map": "Select your location on the map:",
+  "@select_your_location_on_map": {
+    "description": "Prompt to select your location on the map"
+  },
+  "error_snapshot": "Error: {snapshotError}",
+  "@error_snapshot": {
+    "description": "Error message with snapshot error",
+    "placeholders": {
+      "snapshotError": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "store_events": "Store Events",
+  "@store_events": {
+    "description": "Label for store events"
+  },
+  "your_reservations": "Your Reservations",
+  "@your_reservations": {
+    "description": "Label for your reservations"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Label for confirm button"
+  },
+  "english": "English",
+  "@english": {
+    "description": "Label for English language"
+  },
+  "spanish": "Spanish",
+  "@spanish": {
+    "description": "Label for Spanish language"
+  },
+  "french": "French",
+  "@french": {
+    "description": "Label for French language"
+  },
+  "catalan": "Catalan",
+  "@catalan": {
+    "description": "Label for Catalan language"
+  },
+  "month": "Month",
+  "@month": {
+    "description": "Label for month"
+  },
+  "quarter": "Quarter",
+  "@quarter": {
+    "description": "Label for quarter"
+  },
+  "annual": "Annual",
+  "@annual": {
+    "description": "Label for annual"
+  }
+  ,
+  "total_reservations": "Total Reserves",
+  "@total_reservations": {
+    "description": "Label for the total number of reservations"
+  },
+  "active_players": "Active Players",
+  "@active_players": {
+    "description": "Label for the number of active players"
+  },
+  "peak_hours": "Peak Hours",
+  "@peak_hours": {
+    "description": "Label for the busiest hours"
+  },
+  "popular_games": "Popular Games",
+  "@popular_games": {
+    "description": "Label for popular games"
+  }
+  ,
+  "total_reservations_by_period": "Total Reservations for {selectedPeriod}",
+  "@total_reservations_by_period": {
+    "description": "Label for total reservations by selected period",
+    "placeholders": {
+      "selectedPeriod": {
+        "type": "String",
+        "example": "Month"
+      }
+    }
+  }
+  ,
+  "active_players_by_period": "Active Players for {selectedPeriod}",
+  "@active_players_by_period": {
+    "description": "Label for active players by selected period",
+    "placeholders": {
+      "selectedPeriod": {
+        "type": "String",
+        "example": "Month"
+      }
+    }
+  }
+  ,
+  "peak_reservation_hours": "Peak Reservation Hours",
+  "@peak_reservation_hours": {
+    "description": "Label for peak reservation hours"
+  }
+  ,
+  "most_popular_games": "Most Popular Games",
+  "@most_popular_games": {
+    "description": "Label for most popular games"
+  }
+  ,
+  "games": "Games",
+  "@games": {
+    "description": "Label for games"
+  },
+  "ask_ai_about_rules": "Ask AI about rules",
+  "@ask_ai_about_rules": {
+    "description": "Prompt to ask the AI about rules questions"
+  },
+  "send_message": "Send a message",
+  "@send_message": {
+    "description": "Label for sending a message"
+  },
+  "loading_chat": "Loading chat...",
+  "@loading_chat": {
+    "description": "Message indicating that the chat is loading"
+  },
+  "user_or_password_incorrect": "User or password incorrect",
+  "@user_or_password_incorrect": {
+    "description": "Error message indicating that the user or password is incorrect"
+  },
+  "nearby_shops": "Nearby Shops",
+  "@nearby_shops": {
+    "description": "Label for nearby shops"
+  },
+  "go_to_shop": "Go to Shop",
+  "@go_to_shop": {
+    "description": "Label for go to shop"
+  },
+  "confirmed": "Confirmed",
+  "@confirmed": {
+    "description": "Label for confirmed status"
+  },
+  "pending": "Pending",
+  "@pending": {
+    "description": "Label for pending status"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Message indicating that the content is loading"
+  },
+  "unsubscribed": "Unsubscribed",
+  "@unsubscribed": {
+    "description": "Label for unsubscribed status"
+  },
+  "subscribed": "Subscribed",
+  "@subscribed": {
+    "description": "Label for subscribed status"
+  },
+  "latest_players": "Latest Players",
+  "@latest_players": {
+    "description": "Label for the latest players"
+  }, 
+  "store_statistics": "Store Statistics",
+  "@store_statistics": {
+    "description": "Label for store statistics"
+  },
+  "seats": "Seats",
+  "@seats": {
+    "description": "Label for seats"
+  }, 
+  "store_map": "Stores Map",
+  "@store_maps": {
+    "description": "Label for store maps"
+  },
+  "your_reviews": "Your Reviews",
+  "@your_reviews": {
+    "description": "Label for your reviews"
+  },
+  "chat_with_ai": "Chat with AI",
+  "@chat_with_ai": {
+    "description": "Label for chat with AI"
+  },
+  "processing_code": "Processing Code",
+  "@processing_code": {
+    "description": "Label for processing code"
+  },
+  "align_qr_code": "Align QR Code",
+  "@align_qr_code": {
+    "description": "Label for aligning QR code"
+  },
+  "error_processing_code": "Error Processing Code",
+  "@error_processing_code": {
+    "description": "Error message for processing code"
+  },
+  "edit_info": "Edit Info.",
+  "@edit_info": {
+    "description": "Label for editing info"
+  },
+  "received_reviews": "Received Reviews",
+  "@received_reviews": {
+    "description": "Label for received reviews"
+  },
+  "played_with": "Played with",
+  "@played_with": {
+    "description": "Label for players the user has played with"
+  },
+
+  "welcome_to_roll_and_reserve": "Welcome to Roll & Reserve, {name}!",
+  "@welcome_to_roll_and_reserve": {
+    "description": "Welcome message for Roll & Reserve",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "find_your_ideal_game_table": "Find your ideal game table and reserve in seconds.",
+  "@find_your_ideal_game_table": {
+    "description": "Message encouraging users to find and reserve their game table"
+  },
+  "discover_nearby_shops": "Discover shops near you",
+  "@discover_nearby_shops": {
+    "description": "Message encouraging users to discover nearby shops"
+  },
+  "explore_shops_with_tables": "Explore shops with available tables and community ratings",
+  "@explore_shops_with_tables": {
+    "description": "Message encouraging users to explore shops with tables and ratings"
+  },
+  "reserve_in_few_steps": "Reserve in a few steps",
+  "@reserve_in_few_steps": {
+    "description": "Message indicating the simplicity of reserving a table"
+  },
+  "select_date_time_materials": "Select date, time, and necessary materials for your game",
+  "@select_date_time_materials": {
+    "description": "Message explaining the reservation process"
+  },
+  "manage_your_experience": "Manage your experience",
+  "@manage_your_experience": {
+    "description": "Message encouraging users to manage their reservations and settings"
+  },
+  "control_reservations_reviews_settings": "Control your reservations, reviews, and settings from one place. Now you can even ask the AI your questions.",
+  "@control_reservations_reviews_settings": {
+    "description": "Message explaining the features for managing reservations, reviews, and settings"
+  },
+  "skip": "Skip",
+  "@skip": {
+    "description": "Label for skip button"
+  },
+  "get_started": "Get Started",
+  "@get_started": {
+    "description": "Label for get started button"
+  },
+  "welcome_store_owner": "Welcome {name}, Store Owner!",
+  "@welcome_store_owner": {
+    "description": "Welcome message for store owners",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "manage_your_game_space": "Manage your game space professionally and efficiently",
+  "@manage_your_game_space": {
+    "description": "Message encouraging store owners to manage their game space"
+  },
+  "setup_your_store": "Set Up Your Store",
+  "@setup_your_store": {
+    "description": "Label for setting up the store"
+  },
+  "add_location_and_details": "Add location and details of your establishment",
+  "@add_location_and_details": {
+    "description": "Message prompting store owners to add location and details"
+  },
+  "manage_tables": "Manage Tables",
+  "@manage_tables": {
+    "description": "Label for managing tables"
+  },
+  "create_and_edit_tables": "Create and edit available tables\nManage capacities and special features",
+  "@create_and_edit_tables": {
+    "description": "Message explaining table management features"
+  },
+  "schedule_events": "Schedule Events",
+  "@schedule_events": {
+    "description": "Label for scheduling events"
+  },
+  "organize_tournaments_and_activities": "Organize tournaments and special activities\nControl capacities and reservations",
+  "@organize_tournaments_and_activities": {
+    "description": "Message encouraging store owners to organize events"
+  },
+  "analyze_and_improve": "Analyze and Improve",
+  "@analyze_and_improve": {
+    "description": "Label for analyzing and improving"
+  },
+  "monitor_reservations_reviews_statistics": "Monitor reservations, reviews, and statistics\nMake data-driven decisions",
+  "@monitor_reservations_reviews_statistics": {
+    "description": "Message encouraging store owners to monitor and improve based on data"
+  },
+  "go_to_home": "Go to Home",
+  "@go_to_home": {
+    "description": "Label for go to home button"
+  },
+  "role_admin": "Admin",
+  "@role_admin": {
+    "description": "Label for admin role"
+  },
+  "role_user": "User",
+  "@role_user": {
+    "description": "Label for user role"
+  },
+  "role_owner": "Owner",
+  "@role_owner": {
+    "description": "Label for owner role"
+  },
+  "role": "Role",
+  "@role": {
+    "description": "Label for role selection"
+  },
+  "error_select_user": "Error selecting user",
+  "@error_select_user": {
+    "description": "Error message indicating an issue with selecting a user"
+  },
+  "select_user": "Select User",
+  "@select_user": {
+    "description": "Label for selecting a user"
+  },
+  "all_users": "These are all the users",
+  "@all_users": {
+    "description": "Message indicating all the users"
+  },
+  "all_shops": "These are all the shops",
+  "@all_shops": {
+    "description": "Message indicating all the shops"
+  }, 
+  "ai_assistant": "AI Assistant",
+  "@ai_assistant": {
+    "description": "Label for AI Assistant"
+  },
+  "you": "You",
+  "@you": {
+    "description": "Label for the user"
+  },
+  "restart_conversation": "Restart Conversation",
+  "@restart_conversation": {
+    "description": "Label for restarting the conversation"
+  },
+  "locating_you": "Locating you...",
+  "@locating_you": {
+    "description": "Message indicating that the app is locating the user"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Label for retry button"
+  },
+  "tap_marker_info": "Tap on a marker for more information",
+  "@tap_marker_info": {
+    "description": "Message prompting the user to tap on a marker for more information"
+  },
+  "play_role_with_ai": "Play Role with AI",
+  "@play_role_with_ai": {
+    "description": "Label for playing a role-playing game with AI"
+  },
+  "choose_world_adventure": "Choose the world where you want to live your adventure",
+  "@choose_world_adventure": {
+    "description": "Prompt to choose the world for the user's adventure"
+  },
+  "describe_your_adventure": "Describe Your Adventure",
+  "@describe_your_adventure": {
+    "description": "Label for describing your adventure"
+  },
+  "enter_adventurers_description": "Enter Adventurers Description",
+  "@enter_adventurers_description": {
+    "description": "Prompt to enter the adventurers description"
+  },
+  "adventurers_description": "Adventurers Description",
+  "@adventurers_description": {
+    "description": "Label for adventurers description"
+  },
+  "start_game": "Start Game",
+  "@start_game": {
+    "description": "Label for starting the game"
+  },
+  "confirm_delete_adventure": "Are you sure you want to delete this adventure? This action cannot be undone.",
+  "@confirm_delete_adventure": {
+    "description": "Confirmation message for deleting an adventure"
+  },
+  "delete_adventure": "Delete Adventure",
+  "@delete_adventure": {
+    "description": "Label for deleting an adventure"
+  },
+  "error_character_data_incomplete_or_null": "Error: Character data incomplete or null.",
+  "@error_character_data_incomplete_or_null": {
+    "description": "Error message indicating that the character data is incomplete or null"
+  },
+  "primary_attributes": "Primary Attributes",
+  "@primary_attributes": {
+    "description": "Label for primary attributes section"
+  },
+  "health_and_defense": "Health and Defense",
+  "@health_and_defense": {
+    "description": "Label for health and defense section"
+  },
+  "magical_skills": "Magical Skills",
+  "@magical_skills": {
+    "description": "Label for magical skills section"
+  },
+  "equipment_and_treasure": "Equipment and Treasure",
+  "@equipment_and_treasure": {
+    "description": "Label for equipment and treasure section"
+  },
+  "companion": "Companion",
+  "@companion": {
+    "description": "Label for companion section"
+  },
+  "strength": "Strength",
+  "@strength": {
+    "description": "Label for strength attribute"
+  },
+  "dexterity": "Dexterity",
+  "@dexterity": {
+    "description": "Label for dexterity attribute"
+  },
+  "constitution": "Constitution",
+  "@constitution": {
+    "description": "Label for constitution attribute"
+  },
+  "intelligence": "Intelligence",
+  "@intelligence": {
+    "description": "Label for intelligence attribute"
+  },
+  "wisdom": "Wisdom",
+  "@wisdom": {
+    "description": "Label for wisdom attribute"
+  },
+  "charisma": "Charisma",
+  "@charisma": {
+    "description": "Label for charisma attribute"
+  },
+  "level": "Level",
+  "@level": {
+    "description": "Label for character level"
+  },
+  "known_spells": "Known Spells",
+  "@known_spells": {
+    "description": "Label for known spells section"
+  },
+  "cantrips": "Cantrips",
+  "@cantrips": {
+    "description": "Label for cantrips section"
+  },
+  "level_1_spell_slots": "Level 1 Spell Slots:",
+  "@level_1_spell_slots": {
+    "description": "Label for level 1 spell slots"
+  },
+  "setting_description": "Describe the setting of your adventure",
+  "@setting_description": {
+    "description": "Prompt asking the user to describe the setting of their adventure"
+  },
+  "ask_about_rules": "Ask your questions about the rules",
+  "@ask_about_rules": {
+    "description": "Label for asking questions about the rules"
+  },
+  "identify_board_games": "Identify board games",
+  "@identify_board_games": {
+    "description": "Label for identifying board games"
+  }, 
+  "profile_settings": "Profile Settings",
+  "@profile_settings": {
+    "description": "Label for profile settings"
+  },
+  "user_management": "User Management",
+  "@user_management": {
+    "description": "Label for user management"
+  },
+  "chat_features": "Chat Features",
+  "@chat_features": {
+    "description": "Label for chat features"
+  },
+  "narrator": "Narrator",
+  "@narrator": {
+    "description": "Label for narrator"
+  },
+  "game_vision_ai": "Game Vision AI",
+  "@game_vision_ai": {
+    "description": "Label for Game Vision AI"
+  },
+  "describe_your_move": "Describe your move",
+  "@describe_your_move": {
+    "description": "Prompt asking the user to describe their move"
+  }
+}
+

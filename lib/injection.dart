@@ -1,4 +1,3 @@
-
 import 'package:get_it/get_it.dart';
 import 'package:rol_genui/data/datasources/chat_datasource.dart';
 import 'package:rol_genui/data/repositories/chat_repository_impl.dart';
@@ -22,24 +21,19 @@ final GetIt sl = GetIt.instance;
 ///
 /// This function is called when the application starts.
 ///
-void configureDependencies() async {
+Future<void> configureDependencies() async {
   // BLocs
 
   sl.registerFactory<LanguageBloc>(() => LanguageBloc(sl()));
-  sl.registerFactory<ChatBloc>(
-      () => ChatBloc(sl(), sl(), sl(), sl()));
+  sl.registerFactory<ChatBloc>(() => ChatBloc(sl(), sl(), sl(), sl()));
   // Instancia de Firebase Auth
- 
+
   sl.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(),
   );
   // Repositorios
 
-  sl.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(
-      sl(),
-    ),
-  );
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
   sl.registerLazySingleton<StartChatGeminiUsecases>(
     () => StartChatGeminiUsecases(sl()),
   );

@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:rol_genui/core/prompt.dart';
 import 'package:rol_genui/core/prompt_asistente.dart';
-import 'package:rol_genui/core/rol_prompt/prompt.dart';
 import 'package:rol_genui/data/datasources/chat_datasource.dart';
 import 'package:rol_genui/domain/repositories/chat_repository.dart';
 

@@ -14,20 +14,14 @@ import 'package:rol_genui/presentation/blocs/language/language_state.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-
-  /// This is the main function of the app. It loads the environment variables
-  /// from the .env file, removes the splash screen after 2 seconds, initializes
-  /// Firebase, configures the dependencies, initializes the notification
-  /// service and runs the app.
+/// This is the main function of the app. It loads the environment variables
+/// from the .env file, removes the splash screen after 2 seconds, initializes
+/// Firebase, configures the dependencies, initializes the notification
+/// service and runs the app.
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  Future.delayed(const Duration(seconds: 2), () {
-    FlutterNativeSplash.remove();
-  });
-
-  configureDependencies();
+  WidgetsFlutterBinding.ensureInitialized();
+  // await dotenv.load(fileName: ".env");
+  await configureDependencies();
   runApp(MyApp());
 }
 
@@ -39,37 +33,17 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  late AppLinks _appLinks;
-
   @override
   void initState() {
     super.initState();
-    _initDeepLinkListener();
-  }
-
-
-  void _initDeepLinkListener() async {
-    _appLinks = AppLinks();
-    _appLinks.uriLinkStream.listen((Uri? uri) {
-      if (uri != null) {
-        var path = uri.path;
-        final parameters = uri.queryParameters;
-        path = path.replaceAll(RegExp(r'/\d+$'), '');
-        router.go(path, extra: parameters);
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => sl<LanguageBloc>(),
-        ),
-       BlocProvider(
-          create: (_) => sl<ChatBloc>(),
-        ),
+        BlocProvider(create: (_) => sl<LanguageBloc>()),
+        BlocProvider(create: (_) => sl<ChatBloc>()),
       ],
       child: BlocBuilder<LanguageBloc, LanguageState>(
         builder: (context, state) {

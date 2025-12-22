@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rol_genui/config/router/routes.dart';
 
 class GetRoleRules extends StatelessWidget {
   const GetRoleRules({
@@ -40,7 +41,7 @@ class GetRoleRules extends StatelessWidget {
             ),
             child: InkWell(
               onTap: () {
-                // Acción al tocar la tarjeta
+                router.goNamed('chat');
               },
               child: Padding(
                 padding: const EdgeInsets.all(16.0),

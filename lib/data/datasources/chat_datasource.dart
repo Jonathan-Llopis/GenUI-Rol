@@ -7,16 +7,24 @@ abstract class ChatRemoteDataSource {
   Future<String> startChatGemini(String prompt);
   Future<String> sendMessageGemini(String message, List<ByteData>? imageBytes);
   Future<String> startChatAssistant(String prompt);
-  Future<String> sendMessageAssitant(String message, List<ByteData>? imageBytes);
+  Future<String> sendMessageAssitant(
+    String message,
+    List<ByteData>? imageBytes,
+  );
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
-  ChatRemoteDataSourceImpl();
+  ChatRemoteDataSourceImpl() {
+    final apiKey = dotenv.env['OPENAI_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      throw Exception(
+        'OPENAI_API_KEY no encontrada en las variables de entorno. Asegúrate de cargar .env antes de configurar dependencias.',
+      );
+    }
+    model = GenerativeModel(model: 'gemini-2.5-flash', apiKey: apiKey);
+  }
 
-  final model = GenerativeModel(
-    model: 'gemini-2.0-flash',
-    apiKey: dotenv.env['OPENAI_API_KEY']!,
-  );
+  late final GenerativeModel model;
 
   late dynamic chat;
 
@@ -40,6 +48,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       throw Exception('Error al iniciar el Chat.');
     }
   }
+
   @override
   /// Sends a message to the AI service using the Gemini model.
   ///
@@ -56,14 +65,19 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   ///
   /// Before calling this method, you must call [startChatGemini] to start the
   /// chat session.
-  Future<String> sendMessageGemini(String message, List<ByteData>? imageBytes) async {
+  Future<String> sendMessageGemini(
+    String message,
+    List<ByteData>? imageBytes,
+  ) async {
     List<Content> content = [Content.text(message)];
 
     if (imageBytes != null && imageBytes.isNotEmpty) {
       List<DataPart> dataParts = imageBytes.map((byteData) {
         return DataPart('image/jpeg', byteData.buffer.asUint8List());
       }).toList();
-      content = [Content.multi([TextPart(message), ...dataParts])];
+      content = [
+        Content.multi([TextPart(message), ...dataParts]),
+      ];
     }
 
     final response = await chat.sendMessage(content.first);
@@ -95,6 +109,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       throw Exception('Error al iniciar el Chat.');
     }
   }
+
   @override
   /// Sends a message to the AI service using the assistant model.
   ///
@@ -108,15 +123,19 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   ///
   /// Throws an exception if the response is empty or if there is an error while
   /// interacting with the AI service.
-
-  Future<String> sendMessageAssitant(String message, List<ByteData>? imageBytes) async {
+  Future<String> sendMessageAssitant(
+    String message,
+    List<ByteData>? imageBytes,
+  ) async {
     List<Content> content = [Content.text(message)];
 
     if (imageBytes != null && imageBytes.isNotEmpty) {
       List<DataPart> dataParts = imageBytes.map((byteData) {
         return DataPart('image/jpeg', byteData.buffer.asUint8List());
       }).toList();
-      content = [Content.multi([TextPart(message), ...dataParts])];
+      content = [
+        Content.multi([TextPart(message), ...dataParts]),
+      ];
     }
 
     final response = await chat.sendMessage(content.first);
@@ -127,5 +146,4 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       throw Exception('Error al enviar el mensaje.');
     }
   }
-  
 }

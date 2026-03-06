@@ -1,8 +1,5 @@
-import 'dart:io';
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DefaultAppBar extends StatefulWidget implements PreferredSizeWidget {
   const DefaultAppBar({super.key});

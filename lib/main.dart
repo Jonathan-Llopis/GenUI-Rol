@@ -1,10 +1,9 @@
-import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:rol_genui/config/router/routes.dart';
+import 'package:rol_genui/core/logging/app_logger.dart';
 import 'package:rol_genui/injection.dart';
 import 'package:rol_genui/l10n/l10n/app_localizations.dart';
 import 'package:rol_genui/presentation/blocs/chat/chat_bloc.dart';
@@ -14,14 +13,19 @@ import 'package:rol_genui/presentation/blocs/language/language_state.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-/// This is the main function of the app. It loads the environment variables
-/// from the .env file, removes the splash screen after 2 seconds, initializes
-/// Firebase, configures the dependencies, initializes the notification
-/// service and runs the app.
+final _log = getLogger('Main');
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  setupLogging();
+  _log.info('Iniciando Rol GenUI...');
+
   await dotenv.load(fileName: ".env");
+  _log.config('Variables de entorno cargadas');
+
   await configureDependencies();
+  _log.info('Dependencias configuradas');
+
   runApp(MyApp());
 }
 
@@ -51,8 +55,14 @@ class MyAppState extends State<MyApp> {
           return MaterialApp.router(
             routerConfig: router,
             debugShowCheckedModeBanner: false,
-            title: 'Roll and Reserve',
-            theme: ThemeData(primarySwatch: Colors.blue),
+            title: 'Rol GenUI',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFF6B2D8B),
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+            ),
             localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,

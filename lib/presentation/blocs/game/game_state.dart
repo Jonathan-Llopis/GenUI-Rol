@@ -66,15 +66,15 @@ class GameTurn extends GameState {
 
   @override
   List<Object?> get props => [
-        session,
-        messages,
-        character,
-        currentChoices,
-        combatState,
-        sceneImageBytes,
-        isGeneratingImage,
-        isWaitingForAi,
-      ];
+    session,
+    messages,
+    character,
+    currentChoices,
+    combatState,
+    sceneImageBytes,
+    isGeneratingImage,
+    isWaitingForAi,
+  ];
 }
 
 class GameError extends GameState {

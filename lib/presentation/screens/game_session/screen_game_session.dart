@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:genui/genui.dart';
-import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:rol_genui/data/datasources/chat_datasource.dart';
+import 'package:rol_genui/data/datasources/local_llama_content_generator.dart';
 import 'package:rol_genui/domain/entities/character.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
 import 'package:rol_genui/injection.dart';
@@ -26,41 +26,46 @@ class ScreenGameSession extends StatefulWidget {
 
 class _ScreenGameSessionState extends State<ScreenGameSession> {
   late final GenUiManager _genUiManager;
-  late final GoogleGenerativeAiContentGenerator _contentGenerator;
-  late final GenUiConversation _genUiConversation;
+  LocalLlamaContentGenerator? _contentGenerator;
+  GenUiConversation? _genUiConversation;
 
   @override
   void initState() {
     super.initState();
-    final apiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
-    final system = widget.character.ruleSystem;
-
     _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
-    _contentGenerator = GoogleGenerativeAiContentGenerator(
-      catalog: CoreCatalogItems.asCatalog(),
-      apiKey: apiKey,
-      modelName: 'models/gemini-2.0-flash',
-      systemInstruction: _buildGenUiSystemPrompt(system),
-    );
-    _genUiConversation = GenUiConversation(
-      contentGenerator: _contentGenerator,
-      genUiManager: _genUiManager,
-    );
+  }
+
+  void _initGenUiWithEngine() {
+    if (_contentGenerator != null) return;
+
+    final dataSource = sl<GameRemoteDataSource>();
+    final engine = dataSource.engine;
+
+    if (engine != null) {
+      _contentGenerator = LocalLlamaContentGenerator(
+        engine: engine,
+        systemInstruction: _buildGenUiSystemPrompt(widget.character.ruleSystem),
+      );
+      _genUiConversation = GenUiConversation(
+        contentGenerator: _contentGenerator!,
+        genUiManager: _genUiManager,
+      );
+      // Actualiza la UI para pasar el conversador una vez creado
+      if (mounted) setState(() {});
+    }
   }
 
   String _buildGenUiSystemPrompt(RuleSystem system) {
     return '''You are an RPG interface generator for ${system.name}.
 Your task is to generate interactive UI components for the player's choices and character stats.
-When given story choices, create a Column of Buttons (one per choice).
-When showing stats, create a Row of Cards with the stat name and value.
-Keep the UI compact and thematic for a ${system.genre} RPG.''';
+Keep the UI thematic for a ${system.genre} RPG.''';
   }
 
   @override
   void dispose() {
-    _genUiConversation.dispose();
+    _genUiConversation?.dispose();
+    _contentGenerator?.dispose();
     _genUiManager.dispose();
-    _contentGenerator.dispose();
     super.dispose();
   }
 
@@ -80,10 +85,17 @@ Keep the UI compact and thematic for a ${system.genre} RPG.''';
         );
         return bloc;
       },
-      child: _GameSessionView(
-        character: widget.character,
-        genUiManager: _genUiManager,
-        genUiConversation: _genUiConversation,
+      child: BlocListener<GameBloc, GameState>(
+        listener: (context, state) {
+          if (state is GameTurn) {
+            _initGenUiWithEngine();
+          }
+        },
+        child: _GameSessionView(
+          character: widget.character,
+          genUiManager: _genUiManager,
+          genUiConversation: _genUiConversation,
+        ),
       ),
     );
   }
@@ -93,11 +105,11 @@ class _GameSessionView extends StatefulWidget {
   const _GameSessionView({
     required this.character,
     required this.genUiManager,
-    required this.genUiConversation,
+    this.genUiConversation,
   });
   final Character character;
   final GenUiManager genUiManager;
-  final GenUiConversation genUiConversation;
+  final GenUiConversation? genUiConversation;
 
   @override
   State<_GameSessionView> createState() => _GameSessionViewState();
@@ -198,11 +210,15 @@ class _GameSessionViewState extends State<_GameSessionView> {
               GameTurn s => TabBarView(
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  GameChatView(
-                    state: s,
-                    scrollController: _scrollController,
-                    genUiManager: widget.genUiManager,
-                  ),
+                  if (widget.genUiConversation != null)
+                    GameChatView(
+                      state: s,
+                      scrollController: _scrollController,
+                      genUiManager: widget.genUiManager,
+                      genUiConversation: widget.genUiConversation!,
+                    )
+                  else
+                    const Center(child: CircularProgressIndicator()),
                   GameCharacterView(character: s.character),
                   GameInventoryView(character: s.character),
                   GameCombatView(combatState: s.combatState),

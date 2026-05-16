@@ -49,6 +49,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         languageCode: event.languageCode,
       );
 
+      if (isClosed) return;
+
       _log.info('Nueva sesión creada: id=${result.session.id}');
       final turnState = GameTurn(
         session: result.session,
@@ -65,7 +67,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       }
     } catch (e, st) {
       _log.severe('Error al iniciar la aventura', e, st);
-      emit(GameError('Error al iniciar la aventura: $e'));
+      if (!isClosed) emit(GameError('Error al iniciar la aventura: $e'));
     }
   }
 
@@ -88,6 +90,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         choiceIndex: event.choiceIndex,
         languageCode: event.languageCode,
       );
+
+      if (isClosed) return;
 
       var updatedCharacter = currentState.character;
       final msg = result.narratorMessage;
@@ -156,7 +160,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
     } catch (e, st) {
       _log.severe('Error al procesar elección', e, st);
-      emit(GameError('Error al procesar la elección: $e'));
+      if (!isClosed) emit(GameError('Error al procesar la elección: $e'));
     }
   }
 
@@ -168,6 +172,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     emit(const GameLoading(message: 'Cargando sesión...'));
     try {
       final result = await loadSessionUsecase(event.sessionId);
+      if (isClosed) return;
+
       if (result.session == null) {
         _log.warning('Sesión no encontrada: id=${event.sessionId}');
         emit(const GameError('Sesión no encontrada'));
@@ -191,7 +197,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
     } catch (e, st) {
       _log.severe('Error al cargar sesión id=${event.sessionId}', e, st);
-      emit(GameError('Error al cargar la sesión: $e'));
+      if (!isClosed) emit(GameError('Error al cargar la sesión: $e'));
     }
   }
 
@@ -207,6 +213,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     );
     try {
       final imageBytes = await generateSceneImageUsecase(event.imagePrompt);
+      if (isClosed) return;
+
       if (imageBytes != null) {
         _log.info('Imagen de escena recibida (${imageBytes.length} bytes)');
       } else {
@@ -220,7 +228,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
     } catch (e, st) {
       _log.warning('Error generando imagen de escena', e, st);
-      emit(currentState.copyWith(isGeneratingImage: false));
+      if (!isClosed) emit(currentState.copyWith(isGeneratingImage: false));
     }
   }
 
@@ -240,7 +248,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     );
     try {
       await updateCharacterUsecase(event.character);
-      emit(current.copyWith(character: event.character));
+      if (!isClosed) emit(current.copyWith(character: event.character));
     } catch (e, st) {
       _log.severe('Error actualizando personaje', e, st);
     }

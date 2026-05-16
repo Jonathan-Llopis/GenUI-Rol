@@ -6,27 +6,37 @@ import 'package:rol_genui/main.dart';
 import 'package:rol_genui/presentation/screens/character_creation/screen_character_creation.dart';
 import 'package:rol_genui/presentation/screens/character_list/screen_character_list.dart';
 import 'package:rol_genui/presentation/screens/character_sheet/screen_character_sheet.dart';
-import 'package:rol_genui/presentation/screens/chat/screen_chat.dart';
 import 'package:rol_genui/presentation/screens/game_session/screen_game_session.dart';
 import 'package:rol_genui/presentation/screens/home/screen_home.dart';
+import 'package:rol_genui/presentation/screens/onboarding/screen_onboarding.dart';
+import 'package:rol_genui/presentation/screens/settings/screen_settings.dart';
+import 'package:rol_genui/presentation/screens/splash/screen_initial_loading.dart';
 import 'package:rol_genui/presentation/widgets/default_app_bar.dart';
 
 final GoRouter router = GoRouter(
   navigatorKey: navigatorKey,
-  initialLocation: '/home',
+  initialLocation: '/loading',
   routes: [
+    GoRoute(
+      path: '/loading',
+      name: 'loading',
+      builder: (context, state) => const ScreenInitialLoading(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      name: 'onboarding',
+      builder: (context, state) => const ScreenOnboarding(),
+    ),
     GoRoute(
       path: '/home',
       name: 'home',
       builder: (context, state) =>
           const Scaffold(appBar: DefaultAppBar(), body: ScreenHome()),
       routes: [
-        // Legacy chat route
         GoRoute(
-          path: 'chat',
-          name: 'chat',
-          builder: (context, state) =>
-              const Scaffold(appBar: DefaultAppBar(), body: ScreenChat()),
+          path: 'settings',
+          name: 'settings',
+          builder: (context, state) => const ScreenSettings(),
         ),
         // Character list for a rule system
         GoRoute(

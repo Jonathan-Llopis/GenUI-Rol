@@ -47,3 +47,5 @@ app.*.map.json
 # Local secrets and editor config
 .env
 .vscode/
+
+docs/

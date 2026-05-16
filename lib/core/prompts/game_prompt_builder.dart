@@ -6,11 +6,16 @@ String buildSystemPrompt({
   required Character character,
   required RuleSystem system,
   required String languageCode,
+  bool isCompact = false,
 }) {
   final characterDesc = _describeCharacter(character, system);
   final systemContext = _systemContext(system, languageCode);
-  final mechanics = _mechanicsInstructions(system, languageCode);
-  final outputFormat = _outputFormatInstructions(languageCode);
+  final mechanics = isCompact
+      ? _compactMechanics(languageCode)
+      : _mechanicsInstructions(system, languageCode);
+  final outputFormat = isCompact
+      ? _compactOutputFormat(languageCode)
+      : _outputFormatInstructions(languageCode);
 
   return '''$systemContext
 
@@ -19,6 +24,46 @@ $characterDesc
 $mechanics
 
 $outputFormat''';
+}
+
+String _compactMechanics(String languageCode) {
+  return switch (languageCode) {
+    'es' || 'ca' =>
+      '''MECÁNICAS SIMPLES:
+- Indica tiradas y resultados. Simula los dados.
+- Actualiza estadísticas (daño, cura, etc.).
+- Añade/quita objetos al inventario según la historia.
+- Mantén la narración fluida y las consecuencias claras.''',
+    _ =>
+      '''SIMPLE MECHANICS:
+- State rolls and results. Simulate dice.
+- Update stats (damage, heal, etc.).
+- Add/remove inventory items based on the story.
+- Keep narration fluid and consequences clear.''',
+  };
+}
+
+String _compactOutputFormat(String languageCode) {
+  return switch (languageCode) {
+    'es' || 'ca' =>
+      '''RESPONDE SOLO CON JSON:
+{
+  "story": "Tu narración.",
+  "choices": ["Opción 1", "Opción 2"],
+  "image_prompt": "RPG scene description",
+  "character_updates": {"HP": -2},
+  "inventory_updates": [{"action": "add", "item": {"id": "1", "name": "...", "description": "...", "type": "misc"}}]
+}''',
+    _ =>
+      '''RESPOND ONLY WITH JSON:
+{
+  "story": "Your narration.",
+  "choices": ["Choice 1", "Choice 2"],
+  "image_prompt": "RPG scene description",
+  "character_updates": {"HP": -2},
+  "inventory_updates": []
+}''',
+  };
 }
 
 String _describeCharacter(Character character, RuleSystem system) {

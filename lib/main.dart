@@ -6,10 +6,11 @@ import 'package:rol_genui/config/router/routes.dart';
 import 'package:rol_genui/core/logging/app_logger.dart';
 import 'package:rol_genui/injection.dart';
 import 'package:rol_genui/l10n/l10n/app_localizations.dart';
-import 'package:rol_genui/presentation/blocs/chat/chat_bloc.dart';
 import 'package:rol_genui/presentation/blocs/language/language_bloc.dart';
 import 'package:rol_genui/presentation/blocs/language/language_event.dart';
 import 'package:rol_genui/presentation/blocs/language/language_state.dart';
+import 'package:rol_genui/presentation/blocs/settings/settings_bloc.dart';
+import 'package:rol_genui/presentation/blocs/settings/settings_event.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -26,7 +27,7 @@ void main() async {
   await configureDependencies();
   _log.info('Dependencias configuradas');
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -46,12 +47,11 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => sl<LanguageBloc>()),
-        BlocProvider(create: (_) => sl<ChatBloc>()),
+        BlocProvider(create: (_) => sl<LanguageBloc>()..add(GetLocaleEvent())),
+        BlocProvider(create: (_) => sl<SettingsBloc>()..add(LoadSettings())),
       ],
       child: BlocBuilder<LanguageBloc, LanguageState>(
         builder: (context, state) {
-          context.read<LanguageBloc>().add(GetLocaleEvent());
           return MaterialApp.router(
             routerConfig: router,
             debugShowCheckedModeBanner: false,
@@ -63,13 +63,13 @@ class MyAppState extends State<MyApp> {
               ),
               useMaterial3: true,
             ),
-            localizationsDelegates: [
+            localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: [
+            supportedLocales: const [
               Locale('en'),
               Locale('es'),
               Locale('fr'),

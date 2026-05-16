@@ -18,19 +18,15 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/home',
       name: 'home',
-      builder: (context, state) => const Scaffold(
-        appBar: DefaultAppBar(),
-        body: ScreenHome(),
-      ),
+      builder: (context, state) =>
+          const Scaffold(appBar: DefaultAppBar(), body: ScreenHome()),
       routes: [
         // Legacy chat route
         GoRoute(
           path: 'chat',
           name: 'chat',
-          builder: (context, state) => const Scaffold(
-            appBar: DefaultAppBar(),
-            body: ScreenChat(),
-          ),
+          builder: (context, state) =>
+              const Scaffold(appBar: DefaultAppBar(), body: ScreenChat()),
         ),
         // Character list for a rule system
         GoRoute(

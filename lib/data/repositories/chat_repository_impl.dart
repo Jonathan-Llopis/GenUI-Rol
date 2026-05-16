@@ -6,15 +6,12 @@ import 'package:rol_genui/core/prompt_asistente.dart';
 import 'package:rol_genui/data/datasources/chat_datasource.dart';
 import 'package:rol_genui/domain/repositories/chat_repository.dart';
 
-
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
-  
 
   ChatRepositoryImpl(this.remoteDataSource);
 
   @override
-
   /// Starts a chat session with the AI service using the Gemini model.
   ///
   /// The AI service will generate a response based on the prompt from the
@@ -32,6 +29,7 @@ class ChatRepositoryImpl implements ChatRepository {
       throw Exception('Error starting chat gemini: $e');
     }
   }
+
   @override
   /// Sends a message to the AI service using the Gemini model.
   ///
@@ -44,14 +42,17 @@ class ChatRepositoryImpl implements ChatRepository {
   /// Returns the AI service response as a string if successful.
   ///
   /// Throws an exception if there is an error while interacting with the AI service.
-
-  Future<String> sendMessageGemini(String message, {List<ByteData>? imageBytes}) async {
+  Future<String> sendMessageGemini(
+    String message, {
+    List<ByteData>? imageBytes,
+  }) async {
     try {
       return await remoteDataSource.sendMessageGemini(message, imageBytes);
     } catch (e) {
       throw Exception('Error sending message gemini: $e');
     }
   }
+
   @override
   /// Starts a chat session with the AI service using the Assistant model.
   ///
@@ -70,6 +71,7 @@ class ChatRepositoryImpl implements ChatRepository {
       throw Exception('Error starting chat assistant: $e');
     }
   }
+
   @override
   /// Sends a message to the AI service using the Assistant model.
   ///
@@ -82,7 +84,10 @@ class ChatRepositoryImpl implements ChatRepository {
   /// Returns the AI service response as a string if successful.
   ///
   /// Throws an exception if there is an error while interacting with the AI service.
-  Future<String> sendMessageAssitant(String message, {List<ByteData>? imageBytes}) async {
+  Future<String> sendMessageAssitant(
+    String message, {
+    List<ByteData>? imageBytes,
+  }) async {
     try {
       return await remoteDataSource.sendMessageAssitant(message, imageBytes);
     } catch (e) {

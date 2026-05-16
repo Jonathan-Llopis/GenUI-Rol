@@ -4,14 +4,15 @@ import 'package:rol_genui/presentation/blocs/language/language_event.dart';
 import 'package:rol_genui/presentation/blocs/language/language_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 class LanguageBloc extends Bloc<LanguageEvent, LanguageState> {
   final SharedPreferences sharedPreferences;
 
   LanguageBloc(this.sharedPreferences) : super(LanguageState(Locale('es'))) {
     on<ChangeLanguageEvent>((event, emit) async {
-      await sharedPreferences.setString('locale', '${event.locale.languageCode}_${event.locale.countryCode}');
+      await sharedPreferences.setString(
+        'locale',
+        '${event.locale.languageCode}_${event.locale.countryCode}',
+      );
       emit(LanguageState(event.locale));
     });
 

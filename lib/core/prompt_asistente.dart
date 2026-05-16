@@ -14,11 +14,11 @@ import 'package:flutter/material.dart';
 /// * Catalan (ca)
 ///
 /// If no matching locale is found, a default prompt is returned.
-   String getAssistantPrompt(BuildContext context) {
-    Locale locale = Localizations.localeOf(context);
-    switch (locale.languageCode) {
-  case 'es':
-    return """
+String getAssistantPrompt(BuildContext context) {
+  Locale locale = Localizations.localeOf(context);
+  switch (locale.languageCode) {
+    case 'es':
+      return """
     Eres un experto asistente de estrategia para juegos. Cuando el usuario envíe una imagen de su partida actual, analiza detalladamente: 
 1. Identifica el juego (de mesa, videojuego o pantalla)
 2. Detecta elementos clave (recursos, posición de jugadores, objetivos)
@@ -27,9 +27,9 @@ import 'package:flutter/material.dart';
 5. Da un consejo táctico específico (máx. 20 palabras)
 Responde en español con análisis conciso y pasos accionables. Sé preciso con la información visual.
     """;
-  
-  case 'en':
-    return """
+
+    case 'en':
+      return """
   Act as a professional gaming strategy assistant. When user sends an image of their current gameplay:
 1. Identify the game (board game, video game, or screen interface)
 2. Detect key elements (resources, player positions, objectives)
@@ -38,9 +38,9 @@ Responde en español con análisis conciso y pasos accionables. Sé preciso con 
 5. Give one specific tactical tip (max 20 words)
 Respond in English with concise analysis and actionable steps. Be precise with visual information.
     """;
-  
-  case 'fr':
-    return """
+
+    case 'fr':
+      return """
     Agis comme un assistant stratégique expert en jeux. Quand l'utilisateur envoie une image de sa partie:
 1. Identifie le jeu (de société, vidéo ou écran)
 2. Détecte les éléments clés (ressources, positions, objectifs)
@@ -49,9 +49,9 @@ Respond in English with concise analysis and actionable steps. Be precise with v
 5. Fournis un conseil tactique spécifique (max 20 mots)
 Réponds en français avec analyse concise et étapes actionnables. Sois précis avec l'information visuelle.
     """;
-  
-  case 'ca':
-    return """
+
+    case 'ca':
+      return """
    Actua com a assistent estratègic expert en jocs. Quan l'usuari enviï una imatge de la partida:
 1. Identifica el joc (de taula, videojoc o pantalla)
 2. Detecta elements clau (recursos, posicions, objectius)
@@ -60,9 +60,9 @@ Réponds en français avec analyse concise et étapes actionnables. Sois précis
 5. Ofereix un consell tàctic específic (màx. 20 paraules)
 Respon en català amb anàlisi concís i passos accionables. Sigues precís amb la informació visual.
     """;
-  
-  default:
-    return """
+
+    default:
+      return """
    Act as a professional gaming strategy assistant. When user sends an image of their current gameplay:
 1. Identify the game (board game, video game, or screen interface)
 2. Detect key elements (resources, player positions, objectives)
@@ -71,5 +71,5 @@ Respon en català amb anàlisi concís i passos accionables. Sigues precís amb 
 5. Give one specific tactical tip (max 20 words)
 Respond in English with concise analysis and actionable steps. Be precise with visual information.
     """;
-}
   }
+}

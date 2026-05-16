@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rol_genui/core/logging/app_logger.dart';
+import 'package:rol_genui/domain/entities/item.dart';
 import 'package:rol_genui/domain/usecases/character_usecases/character_usecases.dart';
 import 'package:rol_genui/domain/usecases/session_usecases/session_usecases.dart';
 import 'package:rol_genui/presentation/blocs/game/game_event.dart';
@@ -29,9 +30,18 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   final GenerateSceneImageUsecase generateSceneImageUsecase;
   final UpdateCharacterUsecase updateCharacterUsecase;
 
-  Future<void> _onStartNewGame(StartNewGame event, Emitter<GameState> emit) async {
-    _log.info('StartNewGame: personaje="${event.character.name}" sistema=${event.system.id.name}');
-    emit(const GameLoading(message: 'El Dungeon Master está preparando la aventura...'));
+  Future<void> _onStartNewGame(
+    StartNewGame event,
+    Emitter<GameState> emit,
+  ) async {
+    _log.info(
+      'StartNewGame: personaje="${event.character.name}" sistema=${event.system.id.name}',
+    );
+    emit(
+      const GameLoading(
+        message: 'El Dungeon Master está preparando la aventura...',
+      ),
+    );
     try {
       final result = await startGameSessionUsecase(
         character: event.character,
@@ -45,6 +55,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         messages: [result.firstMessage],
         character: event.character,
         currentChoices: result.firstMessage.choices ?? [],
+        combatState: result.firstMessage.combatState,
         isGeneratingImage: true,
       );
       emit(turnState);
@@ -61,7 +72,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   Future<void> _onMakeChoice(MakeChoice event, Emitter<GameState> emit) async {
     final currentState = state;
     if (currentState is! GameTurn) {
-      _log.warning('MakeChoice ignorado: estado actual no es GameTurn (${state.runtimeType})');
+      _log.warning(
+        'MakeChoice ignorado: estado actual no es GameTurn (${state.runtimeType})',
+      );
       return;
     }
 
@@ -77,8 +90,11 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
 
       var updatedCharacter = currentState.character;
-      if (result.narratorMessage.characterUpdates != null) {
-        final updates = result.narratorMessage.characterUpdates!;
+      final msg = result.narratorMessage;
+
+      // 1. Stats updates
+      if (msg.characterUpdates != null) {
+        final updates = msg.characterUpdates!;
         _log.fine('Aplicando actualizaciones de estadísticas: $updates');
         final newStats = Map<String, int>.from(updatedCharacter.stats);
         updates.forEach((key, delta) {
@@ -88,34 +104,56 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             newStats[key] = (newStats[key]! + delta).clamp(0, maxVal);
           }
         });
-        updatedCharacter = updatedCharacter.copyWith(
-          stats: newStats,
-          updatedAt: DateTime.now(),
+        updatedCharacter = updatedCharacter.copyWith(stats: newStats);
+      }
+
+      // 2. Inventory updates
+      if (msg.inventoryUpdates != null && msg.inventoryUpdates!.isNotEmpty) {
+        _log.info(
+          'Procesando ${msg.inventoryUpdates!.length} actualizaciones de inventario',
         );
+        var newInventory = List<Item>.from(updatedCharacter.inventory);
+        for (final up in msg.inventoryUpdates!) {
+          if (up.action == 'add' && up.item != null) {
+            newInventory.add(up.item!);
+            _log.info('Objeto añadido: ${up.item!.name}');
+          } else if (up.action == 'remove' && up.itemId != null) {
+            newInventory.removeWhere((item) => item.id == up.itemId);
+            _log.info('Objeto eliminado: id=${up.itemId}');
+          }
+        }
+        updatedCharacter = updatedCharacter.copyWith(inventory: newInventory);
+      }
+
+      // 3. Persist character if changed
+      if (updatedCharacter != currentState.character) {
+        updatedCharacter = updatedCharacter.copyWith(updatedAt: DateTime.now());
         updateCharacterUsecase.call(updatedCharacter);
-        _log.info('Estadísticas del personaje actualizadas');
+        _log.info('Ficha del personaje guardada con cambios');
       }
 
       final updatedMessages = [
         ...currentState.messages,
         result.playerMessage,
-        result.narratorMessage,
+        msg,
       ];
 
       final newTurnState = GameTurn(
         session: currentState.session,
         messages: updatedMessages,
         character: updatedCharacter,
-        currentChoices: result.narratorMessage.choices ?? [],
+        currentChoices: msg.choices ?? [],
+        combatState: msg.combatState,
         isGeneratingImage: true,
       );
       emit(newTurnState);
-      _log.fine('Nuevo turno emitido. Total mensajes: ${updatedMessages.length}');
+      _log.fine(
+        'Nuevo turno emitido. Total mensajes: ${updatedMessages.length}',
+      );
 
-      add(RequestSceneImage(result.narratorMessage.text.substring(
-        0,
-        result.narratorMessage.text.length.clamp(0, 150),
-      )));
+      add(
+        RequestSceneImage(msg.text.substring(0, msg.text.length.clamp(0, 150))),
+      );
     } catch (e, st) {
       _log.severe('Error al procesar elección', e, st);
       emit(GameError('Error al procesar la elección: $e'));
@@ -135,15 +173,22 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         emit(const GameError('Sesión no encontrada'));
         return;
       }
-      _log.info('Sesión cargada: "${result.session!.title}" con ${result.messages.length} mensajes');
-      emit(GameTurn(
-        session: result.session!,
-        messages: result.messages,
-        character: event.character,
-        currentChoices: result.messages.isNotEmpty
-            ? (result.messages.last.choices ?? [])
-            : [],
-      ));
+      _log.info(
+        'Sesión cargada: "${result.session!.title}" con ${result.messages.length} mensajes',
+      );
+      emit(
+        GameTurn(
+          session: result.session!,
+          messages: result.messages,
+          character: event.character,
+          currentChoices: result.messages.isNotEmpty
+              ? (result.messages.last.choices ?? [])
+              : [],
+          combatState: result.messages.isNotEmpty
+              ? result.messages.last.combatState
+              : null,
+        ),
+      );
     } catch (e, st) {
       _log.severe('Error al cargar sesión id=${event.sessionId}', e, st);
       emit(GameError('Error al cargar la sesión: $e'));
@@ -157,7 +202,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     final currentState = state;
     if (currentState is! GameTurn) return;
 
-    _log.fine('RequestSceneImage: "${event.imagePrompt.substring(0, event.imagePrompt.length.clamp(0, 60))}"');
+    _log.fine(
+      'RequestSceneImage: "${event.imagePrompt.substring(0, event.imagePrompt.length.clamp(0, 60))}"',
+    );
     try {
       final imageBytes = await generateSceneImageUsecase(event.imagePrompt);
       if (imageBytes != null) {
@@ -165,10 +212,12 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       } else {
         _log.warning('No se obtuvo imagen de escena');
       }
-      emit(currentState.copyWith(
-        sceneImageBytes: imageBytes,
-        isGeneratingImage: false,
-      ));
+      emit(
+        currentState.copyWith(
+          sceneImageBytes: imageBytes,
+          isGeneratingImage: false,
+        ),
+      );
     } catch (e, st) {
       _log.warning('Error generando imagen de escena', e, st);
       emit(currentState.copyWith(isGeneratingImage: false));
@@ -180,10 +229,15 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     emit(const GameInitial());
   }
 
-  Future<void> _onUpdateCharacter(UpdateCharacter event, Emitter<GameState> emit) async {
+  Future<void> _onUpdateCharacter(
+    UpdateCharacter event,
+    Emitter<GameState> emit,
+  ) async {
     final current = state;
     if (current is! GameTurn) return;
-    _log.info('UpdateCharacter: "${event.character.name}" — inventario: ${event.character.inventory.length} objetos');
+    _log.info(
+      'UpdateCharacter: "${event.character.name}" — inventario: ${event.character.inventory.length} objetos',
+    );
     try {
       await updateCharacterUsecase(event.character);
       emit(current.copyWith(character: event.character));

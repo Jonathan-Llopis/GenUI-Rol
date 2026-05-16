@@ -19,8 +19,11 @@ class StadisticsParams {
   final String startTime;
   final String endTime;
 
-  StadisticsParams(
-      {required this.idShop, required this.startTime, required this.endTime});
+  StadisticsParams({
+    required this.idShop,
+    required this.startTime,
+    required this.endTime,
+  });
 }
 
 class GetShopsByOwnerUseCaseParams {
@@ -97,8 +100,11 @@ class StartRolPlayParams {
   final BuildContext context;
   final String character;
   final String theme;
-  StartRolPlayParams(this.context,
-      {required this.character, required this.theme});
+  StartRolPlayParams(
+    this.context, {
+    required this.character,
+    required this.theme,
+  });
 
   static void go(String s) {}
 }

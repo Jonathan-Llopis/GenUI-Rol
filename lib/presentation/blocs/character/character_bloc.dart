@@ -35,7 +35,11 @@ class CharacterBloc extends Bloc<CharacterEvent, CharacterState> {
       _log.info('${characters.length} personaje(s) cargado(s)');
       emit(CharactersLoaded(characters));
     } catch (e, st) {
-      _log.severe('Error cargando personajes del sistema ${event.systemId.name}', e, st);
+      _log.severe(
+        'Error cargando personajes del sistema ${event.systemId.name}',
+        e,
+        st,
+      );
       emit(CharacterError(e.toString()));
     }
   }
@@ -44,13 +48,24 @@ class CharacterBloc extends Bloc<CharacterEvent, CharacterState> {
     CreateCharacter event,
     Emitter<CharacterState> emit,
   ) async {
-    _log.info('Creando personaje: "${event.character.name}" [${event.character.ruleSystemId.name}]');
+    _log.info(
+      'Creando personaje: "${event.character.name}" [${event.character.ruleSystemId.name}]',
+    );
     emit(const CharacterLoading());
     try {
       await createCharacterUsecase(event.character);
-      final characters = await getCharactersBySystemUsecase(event.character.ruleSystemId);
-      _log.info('Personaje creado correctamente. Total en sistema: ${characters.length}');
-      emit(CharacterOperationSuccess(characters: characters, message: 'Personaje creado'));
+      final characters = await getCharactersBySystemUsecase(
+        event.character.ruleSystemId,
+      );
+      _log.info(
+        'Personaje creado correctamente. Total en sistema: ${characters.length}',
+      );
+      emit(
+        CharacterOperationSuccess(
+          characters: characters,
+          message: 'Personaje creado',
+        ),
+      );
     } catch (e, st) {
       _log.severe('Error creando personaje "${event.character.name}"', e, st);
       emit(CharacterError(e.toString()));
@@ -64,11 +79,17 @@ class CharacterBloc extends Bloc<CharacterEvent, CharacterState> {
     _log.info('Actualizando personaje: "${event.character.name}"');
     try {
       await updateCharacterUsecase(event.character);
-      final characters = await getCharactersBySystemUsecase(event.character.ruleSystemId);
+      final characters = await getCharactersBySystemUsecase(
+        event.character.ruleSystemId,
+      );
       _log.info('Personaje actualizado correctamente');
       emit(CharacterOperationSuccess(characters: characters));
     } catch (e, st) {
-      _log.severe('Error actualizando personaje "${event.character.name}"', e, st);
+      _log.severe(
+        'Error actualizando personaje "${event.character.name}"',
+        e,
+        st,
+      );
       emit(CharacterError(e.toString()));
     }
   }
@@ -83,8 +104,15 @@ class CharacterBloc extends Bloc<CharacterEvent, CharacterState> {
       await deleteCharacterUsecase(event.id);
       _log.info('Personaje eliminado: id=${event.id}');
       if (currentState is CharactersLoaded) {
-        final updated = currentState.characters.where((c) => c.id != event.id).toList();
-        emit(CharacterOperationSuccess(characters: updated, message: 'Personaje eliminado'));
+        final updated = currentState.characters
+            .where((c) => c.id != event.id)
+            .toList();
+        emit(
+          CharacterOperationSuccess(
+            characters: updated,
+            message: 'Personaje eliminado',
+          ),
+        );
       }
     } catch (e, st) {
       _log.severe('Error eliminando personaje id=${event.id}', e, st);

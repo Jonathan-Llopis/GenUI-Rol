@@ -35,7 +35,10 @@ class _CharacterSheetView extends StatelessWidget {
             tooltip: 'Jugar',
             onPressed: () => context.goNamed(
               'game-session',
-              pathParameters: {'systemId': system.idString, 'characterId': character.id},
+              pathParameters: {
+                'systemId': system.idString,
+                'characterId': character.id,
+              },
               extra: character,
             ),
           ),
@@ -90,7 +93,10 @@ class _CharacterHeaderCard extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: Text(
                 character.name[0].toUpperCase(),
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -100,7 +106,9 @@ class _CharacterHeaderCard extends StatelessWidget {
                 children: [
                   Text(
                     character.name,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     '${character.characterClass}${character.race != null ? ' · ${character.race}' : ''}',
@@ -108,7 +116,10 @@ class _CharacterHeaderCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(12),
@@ -117,7 +128,9 @@ class _CharacterHeaderCard extends StatelessWidget {
                       system.name,
                       style: TextStyle(
                         fontSize: 11,
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                       ),
                     ),
                   ),
@@ -142,7 +155,9 @@ class _StatsGrid extends StatelessWidget {
         .where((e) => e.value.type == StatType.attribute)
         .toList();
     final resources = system.statSchema.entries
-        .where((e) => e.value.type == StatType.resource && !e.key.startsWith('MAX_'))
+        .where(
+          (e) => e.value.type == StatType.resource && !e.key.startsWith('MAX_'),
+        )
         .toList();
     final derived = system.statSchema.entries
         .where((e) => e.value.type == StatType.derived)
@@ -160,7 +175,11 @@ class _StatsGrid extends StatelessWidget {
         if (resources.isNotEmpty) ...[
           _SubSectionTitle(title: 'Recursos'),
           const SizedBox(height: 8),
-          _ResourcesList(entries: resources, stats: character.stats, system: system),
+          _ResourcesList(
+            entries: resources,
+            stats: character.stats,
+            system: system,
+          ),
           const SizedBox(height: 12),
         ],
         if (derived.isNotEmpty) ...[
@@ -221,15 +240,23 @@ class _AttributeBox extends StatelessWidget {
       width: 52,
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+        ),
       ),
       child: Column(
         children: [
-          Text(abbrev, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+          Text(
+            abbrev,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 4),
-          Text(value.toString(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            value.toString(),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           Text(
             modifier >= 0 ? '+$modifier' : '$modifier',
             style: TextStyle(
@@ -246,7 +273,11 @@ class _AttributeBox extends StatelessWidget {
 }
 
 class _ResourcesList extends StatelessWidget {
-  const _ResourcesList({required this.entries, required this.stats, required this.system});
+  const _ResourcesList({
+    required this.entries,
+    required this.stats,
+    required this.system,
+  });
   final List<MapEntry<String, StatDefinition>> entries;
   final Map<String, int> stats;
   final RuleSystem system;
@@ -269,8 +300,14 @@ class _ResourcesList extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(e.value.label, style: const TextStyle(fontWeight: FontWeight.w500)),
-                  Text('$val / $maxVal', style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+                  Text(
+                    e.value.label,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    '$val / $maxVal',
+                    style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
@@ -305,7 +342,7 @@ class ClipRoundedBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(4),
       child: LinearProgressIndicator(
         value: value.clamp(0.0, 1.0),
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         valueColor: AlwaysStoppedAnimation<Color>(color),
         minHeight: 8,
       ),
@@ -321,7 +358,9 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:rol_genui/domain/entities/combat.dart';
+import 'package:rol_genui/domain/entities/inventory.dart';
 
 enum MessageRole { narrator, player, system }
 
@@ -13,6 +15,8 @@ class StoryMessage {
     this.choices,
     this.selectedChoiceIndex,
     this.characterUpdates,
+    this.inventoryUpdates,
+    this.combatState,
   });
 
   final String id;
@@ -24,6 +28,8 @@ class StoryMessage {
   final List<String>? choices;
   final int? selectedChoiceIndex;
   final Map<String, int>? characterUpdates;
+  final List<InventoryUpdate>? inventoryUpdates;
+  final CombatState? combatState;
 
   StoryMessage copyWith({
     String? id,
@@ -35,6 +41,8 @@ class StoryMessage {
     List<String>? choices,
     int? selectedChoiceIndex,
     Map<String, int>? characterUpdates,
+    List<InventoryUpdate>? inventoryUpdates,
+    CombatState? combatState,
   }) {
     return StoryMessage(
       id: id ?? this.id,
@@ -46,6 +54,8 @@ class StoryMessage {
       choices: choices ?? this.choices,
       selectedChoiceIndex: selectedChoiceIndex ?? this.selectedChoiceIndex,
       characterUpdates: characterUpdates ?? this.characterUpdates,
+      inventoryUpdates: inventoryUpdates ?? this.inventoryUpdates,
+      combatState: combatState ?? this.combatState,
     );
   }
 }

@@ -23,7 +23,9 @@ class ScreenHome extends StatelessWidget {
               Text(
                 'Elige tu sistema de rol y comienza la aventura',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
                 ),
                 textAlign: TextAlign.center,
               ),

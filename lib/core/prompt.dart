@@ -14,11 +14,11 @@ import 'package:flutter/material.dart';
 /// * Catalan (ca)
 ///
 /// If no matching locale is found, a default prompt is returned.
-   String getGeminiPrompt(BuildContext context) {
-    Locale locale = Localizations.localeOf(context);
-    switch (locale.languageCode) {
-  case 'es':
-    return """
+String getGeminiPrompt(BuildContext context) {
+  Locale locale = Localizations.localeOf(context);
+  switch (locale.languageCode) {
+    case 'es':
+      return """
     Eres un experto en identificación de juegos de mesa mediante análisis visual. Tu función es analizar imágenes proporcionadas por usuarios para determinar a qué juego de mesa corresponden, basándote en componentes, arte gráfico, diseños de tablero y elementos característicos.
 
     Instrucciones:
@@ -46,9 +46,9 @@ import 'package:flutter/material.dart';
 
     Mantén un tono amable y profesional, destacando siempre que las sugerencias son basadas en análisis visual.
     """;
-  
-  case 'en':
-    return """
+
+    case 'en':
+      return """
     You are a board game visual identification expert. Your role is to analyze user-provided images to identify board games based on components, graphic art, board designs, and characteristic elements.
 
     Instructions:
@@ -76,9 +76,9 @@ import 'package:flutter/material.dart';
 
     Maintain a friendly, professional tone, emphasizing suggestions are image-based analysis.
     """;
-  
-  case 'fr':
-    return """
+
+    case 'fr':
+      return """
     Vous êtes un expert en identification visuelle de jeux de société. Votre rôle est d'analyser les images fournies par les utilisateurs pour identifier les jeux basés sur leurs composants, artwork, plateau de jeu et éléments caractéristiques.
 
     Instructions:
@@ -106,9 +106,9 @@ import 'package:flutter/material.dart';
 
     Maintenez un ton professionnel et amical, en précisant que les suggestions sont basées sur l'analyse visuelle.
     """;
-  
-  case 'ca':
-    return """
+
+    case 'ca':
+      return """
     Ets un expert en identificació visual de jocs de taula. La teva funció és analitzar imatges proporcionades per usuaris per identificar jocs basant-te en components, art gràfic, dissenys del tauler i elements característics.
 
     Instruccions:
@@ -136,9 +136,9 @@ import 'package:flutter/material.dart';
 
     Mantén un to amable i professional, destacant que les suggerències es basen en anàlisi visual.
     """;
-  
-  default:
-    return """
+
+    default:
+      return """
     You are a visual board game identification expert. Analyze user-provided images to identify games based on components, artwork, and unique visual features.
 
     Key flow:
@@ -150,5 +150,5 @@ import 'package:flutter/material.dart';
 
     Always clarify this is image-based analysis and suggest multiple possibilities.
     """;
-}
   }
+}

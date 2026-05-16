@@ -31,28 +31,36 @@ class _ScreenCharacterListState extends State<ScreenCharacterList> {
   }
 
   void _goToCreate() {
-    context.pushNamed(
-      'character-create',
-      pathParameters: {'systemId': widget.system.idString},
-    ).then((_) {
-      // Recargar lista al volver desde la pantalla de creación
-      if (mounted) {
-        _bloc.add(LoadCharactersBySystem(widget.system.id));
-      }
-    });
+    context
+        .pushNamed(
+          'character-create',
+          pathParameters: {'systemId': widget.system.idString},
+        )
+        .then((_) {
+          // Recargar lista al volver desde la pantalla de creación
+          if (mounted) {
+            _bloc.add(LoadCharactersBySystem(widget.system.id));
+          }
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _bloc,
-      child: _ScreenCharacterListView(system: widget.system, onCreateTap: _goToCreate),
+      child: _ScreenCharacterListView(
+        system: widget.system,
+        onCreateTap: _goToCreate,
+      ),
     );
   }
 }
 
 class _ScreenCharacterListView extends StatelessWidget {
-  const _ScreenCharacterListView({required this.system, required this.onCreateTap});
+  const _ScreenCharacterListView({
+    required this.system,
+    required this.onCreateTap,
+  });
   final RuleSystem system;
   final VoidCallback onCreateTap;
 
@@ -72,13 +80,16 @@ class _ScreenCharacterListView extends StatelessWidget {
       body: BlocConsumer<CharacterBloc, CharacterState>(
         listener: (context, state) {
           if (state is CharacterOperationSuccess && state.message != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message!)));
           }
           if (state is CharacterError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -127,10 +138,17 @@ class _ScreenCharacterListView extends StatelessWidget {
                   contentPadding: const EdgeInsets.all(16),
                   leading: CircleAvatar(
                     radius: 28,
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer,
                     child: Text(
-                      character.name.isNotEmpty ? character.name[0].toUpperCase() : '?',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      character.name.isNotEmpty
+                          ? character.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   title: Text(
@@ -140,7 +158,9 @@ class _ScreenCharacterListView extends StatelessWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${character.characterClass}${character.race != null ? ' · ${character.race}' : ''}'),
+                      Text(
+                        '${character.characterClass}${character.race != null ? ' · ${character.race}' : ''}',
+                      ),
                       const SizedBox(height: 4),
                       _buildStatChips(context, character),
                     ],
@@ -150,7 +170,10 @@ class _ScreenCharacterListView extends StatelessWidget {
                       if (value == 'sheet') {
                         context.goNamed(
                           'character-sheet',
-                          pathParameters: {'systemId': system.idString, 'characterId': character.id},
+                          pathParameters: {
+                            'systemId': system.idString,
+                            'characterId': character.id,
+                          },
                           extra: character,
                         );
                       } else if (value == 'delete') {
@@ -158,13 +181,22 @@ class _ScreenCharacterListView extends StatelessWidget {
                       }
                     },
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'sheet', child: Text('Ver ficha')),
-                      const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                      const PopupMenuItem(
+                        value: 'sheet',
+                        child: Text('Ver ficha'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Eliminar'),
+                      ),
                     ],
                   ),
                   onTap: () => context.goNamed(
                     'game-session',
-                    pathParameters: {'systemId': system.idString, 'characterId': character.id},
+                    pathParameters: {
+                      'systemId': system.idString,
+                      'characterId': character.id,
+                    },
                     extra: character,
                   ),
                 ),
@@ -207,7 +239,10 @@ class _ScreenCharacterListView extends StatelessWidget {
         title: const Text('Eliminar personaje'),
         content: Text('¿Eliminar a "$name"? Esta acción no se puede deshacer.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);

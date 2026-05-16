@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:rol_genui/domain/entities/character.dart';
+import 'package:rol_genui/domain/entities/combat.dart';
 import 'package:rol_genui/domain/entities/game_session.dart';
 import 'package:rol_genui/domain/entities/story_message.dart';
 
@@ -26,6 +27,7 @@ class GameTurn extends GameState {
     required this.messages,
     required this.character,
     required this.currentChoices,
+    this.combatState,
     this.sceneImageBytes,
     this.isGeneratingImage = false,
     this.isWaitingForAi = false,
@@ -35,6 +37,7 @@ class GameTurn extends GameState {
   final List<StoryMessage> messages;
   final Character character;
   final List<String> currentChoices;
+  final CombatState? combatState;
   final List<int>? sceneImageBytes;
   final bool isGeneratingImage;
   final bool isWaitingForAi;
@@ -44,6 +47,7 @@ class GameTurn extends GameState {
     List<StoryMessage>? messages,
     Character? character,
     List<String>? currentChoices,
+    CombatState? combatState,
     List<int>? sceneImageBytes,
     bool? isGeneratingImage,
     bool? isWaitingForAi,
@@ -53,6 +57,7 @@ class GameTurn extends GameState {
       messages: messages ?? this.messages,
       character: character ?? this.character,
       currentChoices: currentChoices ?? this.currentChoices,
+      combatState: combatState ?? this.combatState,
       sceneImageBytes: sceneImageBytes ?? this.sceneImageBytes,
       isGeneratingImage: isGeneratingImage ?? this.isGeneratingImage,
       isWaitingForAi: isWaitingForAi ?? this.isWaitingForAi,
@@ -61,9 +66,15 @@ class GameTurn extends GameState {
 
   @override
   List<Object?> get props => [
-    session, messages, character, currentChoices,
-    sceneImageBytes, isGeneratingImage, isWaitingForAi,
-  ];
+        session,
+        messages,
+        character,
+        currentChoices,
+        combatState,
+        sceneImageBytes,
+        isGeneratingImage,
+        isWaitingForAi,
+      ];
 }
 
 class GameError extends GameState {

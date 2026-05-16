@@ -7,6 +7,9 @@ import 'package:rol_genui/domain/entities/character.dart';
 import 'package:rol_genui/domain/entities/game_session.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
 import 'package:rol_genui/domain/entities/story_message.dart';
+import 'package:rol_genui/domain/entities/combat.dart';
+import 'package:rol_genui/domain/entities/inventory.dart';
+import 'package:rol_genui/domain/entities/item.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _log = getLogger('DatabaseDataSource');
@@ -102,14 +105,22 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
         choices_json TEXT,
         selected_choice_index INTEGER,
         character_updates_json TEXT,
+        inventory_updates_json TEXT,
+        combat_state_json TEXT,
         timestamp INTEGER NOT NULL,
         FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE
       )
     ''');
 
-    await db.execute('CREATE INDEX idx_characters_system ON characters(rule_system_id)');
-    await db.execute('CREATE INDEX idx_sessions_character ON game_sessions(character_id)');
-    await db.execute('CREATE INDEX idx_messages_session ON session_messages(session_id)');
+    await db.execute(
+      'CREATE INDEX idx_characters_system ON characters(rule_system_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_sessions_character ON game_sessions(character_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_messages_session ON session_messages(session_id)',
+    );
     _log.info('Esquema creado correctamente');
   }
 
@@ -117,7 +128,13 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
     _log.info('Migrando base de datos v$oldVersion → v$newVersion...');
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE characters ADD COLUMN inventory_json TEXT');
-      _log.info('Migración v2: columna inventory_json añadida');
+      await db.execute(
+        'ALTER TABLE session_messages ADD COLUMN inventory_updates_json TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE session_messages ADD COLUMN combat_state_json TEXT',
+      );
+      _log.info('Migración v2 completa');
     }
   }
 
@@ -125,11 +142,18 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
 
   @override
   Future<void> insertCharacter(Character character) async {
-    _log.fine('Insertando personaje id=${character.id} name="${character.name}"');
+    _log.fine(
+      'Insertando personaje id=${character.id} name="${character.name}"',
+    );
     try {
-      await db.insert('characters', _characterToMap(character),
-          conflictAlgorithm: ConflictAlgorithm.replace);
-      _log.info('Personaje creado: "${character.name}" [${character.ruleSystemId.name}]');
+      await db.insert(
+        'characters',
+        _characterToMap(character),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      _log.info(
+        'Personaje creado: "${character.name}" [${character.ruleSystemId.name}]',
+      );
     } catch (e, st) {
       _log.severe('Error insertando personaje "${character.name}"', e, st);
       rethrow;
@@ -140,8 +164,12 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   Future<void> updateCharacter(Character character) async {
     _log.fine('Actualizando personaje id=${character.id}');
     try {
-      await db.update('characters', _characterToMap(character),
-          where: 'id = ?', whereArgs: [character.id]);
+      await db.update(
+        'characters',
+        _characterToMap(character),
+        where: 'id = ?',
+        whereArgs: [character.id],
+      );
       _log.info('Personaje actualizado: "${character.name}"');
     } catch (e, st) {
       _log.severe('Error actualizando personaje id=${character.id}', e, st);
@@ -175,10 +203,12 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   @override
   Future<List<Character>> getCharactersBySystem(RuleSystemId systemId) async {
     _log.fine('Cargando personajes del sistema ${systemId.name}');
-    final rows = await db.query('characters',
-        where: 'rule_system_id = ?',
-        whereArgs: [systemId.name],
-        orderBy: 'updated_at DESC');
+    final rows = await db.query(
+      'characters',
+      where: 'rule_system_id = ?',
+      whereArgs: [systemId.name],
+      orderBy: 'updated_at DESC',
+    );
     _log.info('Personajes cargados: ${rows.length} para ${systemId.name}');
     return rows.map(_characterFromMap).toList();
   }
@@ -189,8 +219,11 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   Future<void> insertSession(GameSession session) async {
     _log.fine('Insertando sesión id=${session.id} title="${session.title}"');
     try {
-      await db.insert('game_sessions', _sessionToMap(session),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      await db.insert(
+        'game_sessions',
+        _sessionToMap(session),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
       _log.info('Sesión creada: "${session.title}"');
     } catch (e, st) {
       _log.severe('Error insertando sesión "${session.title}"', e, st);
@@ -202,8 +235,12 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   Future<void> updateSession(GameSession session) async {
     _log.fine('Actualizando sesión id=${session.id}');
     try {
-      await db.update('game_sessions', _sessionToMap(session),
-          where: 'id = ?', whereArgs: [session.id]);
+      await db.update(
+        'game_sessions',
+        _sessionToMap(session),
+        where: 'id = ?',
+        whereArgs: [session.id],
+      );
     } catch (e, st) {
       _log.severe('Error actualizando sesión id=${session.id}', e, st);
       rethrow;
@@ -225,8 +262,11 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   @override
   Future<GameSession?> getSession(String id) async {
     _log.fine('Buscando sesión id=$id');
-    final rows =
-        await db.query('game_sessions', where: 'id = ?', whereArgs: [id]);
+    final rows = await db.query(
+      'game_sessions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
     if (rows.isEmpty) {
       _log.warning('Sesión no encontrada: id=$id');
       return null;
@@ -237,10 +277,12 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   @override
   Future<List<GameSession>> getSessionsByCharacter(String characterId) async {
     _log.fine('Cargando sesiones del personaje id=$characterId');
-    final rows = await db.query('game_sessions',
-        where: 'character_id = ?',
-        whereArgs: [characterId],
-        orderBy: 'updated_at DESC');
+    final rows = await db.query(
+      'game_sessions',
+      where: 'character_id = ?',
+      whereArgs: [characterId],
+      orderBy: 'updated_at DESC',
+    );
     _log.info('Sesiones cargadas: ${rows.length} para personaje $characterId');
     return rows.map(_sessionFromMap).toList();
   }
@@ -251,8 +293,11 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   Future<void> insertMessage(StoryMessage message) async {
     _log.fine('Insertando mensaje id=${message.id} role=${message.role.name}');
     try {
-      await db.insert('session_messages', _messageToMap(message),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      await db.insert(
+        'session_messages',
+        _messageToMap(message),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     } catch (e, st) {
       _log.severe('Error insertando mensaje id=${message.id}', e, st);
       rethrow;
@@ -262,10 +307,12 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   @override
   Future<List<StoryMessage>> getMessagesBySession(String sessionId) async {
     _log.fine('Cargando mensajes de sesión id=$sessionId');
-    final rows = await db.query('session_messages',
-        where: 'session_id = ?',
-        whereArgs: [sessionId],
-        orderBy: 'timestamp ASC');
+    final rows = await db.query(
+      'session_messages',
+      where: 'session_id = ?',
+      whereArgs: [sessionId],
+      orderBy: 'timestamp ASC',
+    );
     _log.info('Mensajes cargados: ${rows.length} para sesión $sessionId');
     return rows.map(_messageFromMap).toList();
   }
@@ -273,8 +320,11 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   @override
   Future<void> deleteMessagesBySession(String sessionId) async {
     _log.fine('Eliminando mensajes de sesión id=$sessionId');
-    await db.delete('session_messages',
-        where: 'session_id = ?', whereArgs: [sessionId]);
+    await db.delete(
+      'session_messages',
+      where: 'session_id = ?',
+      whereArgs: [sessionId],
+    );
     _log.info('Mensajes eliminados para sesión $sessionId');
   }
 
@@ -290,7 +340,7 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
     'race': c.race,
     'occupation': c.occupation,
     'image_prompt': c.imagePrompt,
-    'inventory_json': jsonEncode(c.inventory),
+    'inventory_json': jsonEncode(c.inventory.map((e) => e.toJson()).toList()),
     'created_at': c.createdAt.millisecondsSinceEpoch,
     'updated_at': c.updatedAt.millisecondsSinceEpoch,
   };
@@ -298,7 +348,9 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   Character _characterFromMap(Map<String, dynamic> m) => Character(
     id: m['id'] as String,
     name: m['name'] as String,
-    ruleSystemId: RuleSystemId.values.firstWhere((e) => e.name == m['rule_system_id']),
+    ruleSystemId: RuleSystemId.values.firstWhere(
+      (e) => e.name == m['rule_system_id'],
+    ),
     stats: Map<String, int>.from(jsonDecode(m['stats_json'] as String) as Map),
     backstory: m['backstory'] as String,
     characterClass: m['character_class'] as String,
@@ -306,7 +358,9 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
     occupation: m['occupation'] as String?,
     imagePrompt: m['image_prompt'] as String?,
     inventory: m['inventory_json'] != null
-        ? List<String>.from(jsonDecode(m['inventory_json'] as String) as List)
+        ? (jsonDecode(m['inventory_json'] as String) as List)
+              .map((e) => Item.fromJson(e as Map<String, dynamic>))
+              .toList()
         : const [],
     createdAt: DateTime.fromMillisecondsSinceEpoch(m['created_at'] as int),
     updatedAt: DateTime.fromMillisecondsSinceEpoch(m['updated_at'] as int),
@@ -326,7 +380,9 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
   GameSession _sessionFromMap(Map<String, dynamic> m) => GameSession(
     id: m['id'] as String,
     characterId: m['character_id'] as String,
-    ruleSystemId: RuleSystemId.values.firstWhere((e) => e.name == m['rule_system_id']),
+    ruleSystemId: RuleSystemId.values.firstWhere(
+      (e) => e.name == m['rule_system_id'],
+    ),
     title: m['title'] as String,
     summary: m['summary'] as String,
     isActive: (m['is_active'] as int) == 1,
@@ -341,8 +397,15 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
     'text': msg.text,
     'choices_json': msg.choices != null ? jsonEncode(msg.choices) : null,
     'selected_choice_index': msg.selectedChoiceIndex,
-    'character_updates_json':
-        msg.characterUpdates != null ? jsonEncode(msg.characterUpdates) : null,
+    'character_updates_json': msg.characterUpdates != null
+        ? jsonEncode(msg.characterUpdates)
+        : null,
+    'inventory_updates_json': msg.inventoryUpdates != null
+        ? jsonEncode(msg.inventoryUpdates!.map((e) => e.toJson()).toList())
+        : null,
+    'combat_state_json': msg.combatState != null
+        ? jsonEncode(msg.combatState!.toJson())
+        : null,
     'timestamp': msg.timestamp.millisecondsSinceEpoch,
   };
 
@@ -356,7 +419,20 @@ class DatabaseDataSourceImpl implements DatabaseDataSource {
         : null,
     selectedChoiceIndex: m['selected_choice_index'] as int?,
     characterUpdates: m['character_updates_json'] != null
-        ? Map<String, int>.from(jsonDecode(m['character_updates_json'] as String) as Map)
+        ? Map<String, int>.from(
+            jsonDecode(m['character_updates_json'] as String) as Map,
+          )
+        : null,
+    inventoryUpdates: m['inventory_updates_json'] != null
+        ? (jsonDecode(m['inventory_updates_json'] as String) as List)
+              .map((e) => InventoryUpdate.fromJson(e as Map<String, dynamic>))
+              .toList()
+        : null,
+    combatState: m['combat_state_json'] != null
+        ? CombatState.fromJson(
+            jsonDecode(m['combat_state_json'] as String)
+                as Map<String, dynamic>,
+          )
         : null,
     timestamp: DateTime.fromMillisecondsSinceEpoch(m['timestamp'] as int),
   );

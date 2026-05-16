@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rol_genui/domain/entities/character.dart';
+import 'package:rol_genui/domain/entities/item.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
 import 'package:rol_genui/presentation/blocs/game/game_bloc.dart';
 import 'package:rol_genui/presentation/blocs/game/game_event.dart';
@@ -99,8 +100,14 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
     if (resources.isEmpty) return const SizedBox.shrink();
 
     // Separar pares current/max (HP/MAX_HP, SAN/MAX_SAN…)
-    final maxKeys = resources.map((e) => e.key).where((k) => k.startsWith('MAX_')).toSet();
-    final currentKeys = resources.map((e) => e.key).where((k) => !k.startsWith('MAX_')).toList();
+    final maxKeys = resources
+        .map((e) => e.key)
+        .where((k) => k.startsWith('MAX_'))
+        .toSet();
+    final currentKeys = resources
+        .map((e) => e.key)
+        .where((k) => !k.startsWith('MAX_'))
+        .toList();
 
     return _Section(
       title: 'Recursos',
@@ -185,14 +192,19 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 'Sin objetos',
-                style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5), fontSize: 13),
+                style: TextStyle(
+                  color: cs.onSurface.withValues(alpha: 0.5),
+                  fontSize: 13,
+                ),
               ),
             )
           else
-            ...c.inventory.asMap().entries.map((entry) => _InventoryItem(
-                  item: entry.value,
-                  onRemove: () => _removeInventoryItem(c, entry.key),
-                )),
+            ...c.inventory.asMap().entries.map(
+              (entry) => _InventoryItem(
+                item: entry.value,
+                onRemove: () => _removeInventoryItem(c, entry.key),
+              ),
+            ),
           _AddItemField(
             controller: _itemController,
             onAdd: () => _addInventoryItem(c),
@@ -205,13 +217,19 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
   void _addInventoryItem(Character c) {
     final text = _itemController.text.trim();
     if (text.isEmpty) return;
-    final updated = c.copyWith(inventory: [...c.inventory, text]);
+    final newItem = Item(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: text,
+      description: 'Objeto añadido manualmente',
+      type: ItemType.misc,
+    );
+    final updated = c.copyWith(inventory: [...c.inventory, newItem]);
     context.read<GameBloc>().add(UpdateCharacter(updated));
     _itemController.clear();
   }
 
   void _removeInventoryItem(Character c, int index) {
-    final newList = List<String>.from(c.inventory)..removeAt(index);
+    final newList = List<Item>.from(c.inventory)..removeAt(index);
     final updated = c.copyWith(inventory: newList);
     context.read<GameBloc>().add(UpdateCharacter(updated));
   }
@@ -227,7 +245,11 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
       onToggle: () => setState(() => _backstoryExpanded = !_backstoryExpanded),
       child: Text(
         c.backstory.isEmpty ? 'Sin trasfondo definido.' : c.backstory,
-        style: TextStyle(fontSize: 13, color: cs.onSurface.withValues(alpha: 0.85), height: 1.5),
+        style: TextStyle(
+          fontSize: 13,
+          color: cs.onSurface.withValues(alpha: 0.85),
+          height: 1.5,
+        ),
       ),
     );
   }
@@ -246,7 +268,8 @@ class _Header extends StatelessWidget {
     final subtitle = [
       character.characterClass,
       if (character.race != null && character.race!.isNotEmpty) character.race!,
-      if (character.occupation != null && character.occupation!.isNotEmpty) character.occupation!,
+      if (character.occupation != null && character.occupation!.isNotEmpty)
+        character.occupation!,
     ].join(' • ');
 
     return BlocBuilder<GameBloc, GameState>(
@@ -263,7 +286,12 @@ class _Header extends StatelessWidget {
               colors: [cs.primaryContainer, cs.secondaryContainer],
             ),
           ),
-          padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 16, 16, 20),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            MediaQuery.of(context).padding.top + 16,
+            16,
+            20,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -295,7 +323,9 @@ class _Header extends StatelessWidget {
                             subtitle,
                             style: TextStyle(
                               fontSize: 12,
-                              color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                              color: cs.onPrimaryContainer.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                         Text(
@@ -371,11 +401,11 @@ class _Section extends StatelessWidget {
           ),
         ),
         if (expanded)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: child,
-          ),
-        Divider(height: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
+          Padding(padding: const EdgeInsets.only(bottom: 8), child: child),
+        Divider(
+          height: 1,
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+        ),
       ],
     );
   }
@@ -458,7 +488,13 @@ class _ResourceBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.7))),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: cs.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
             Text(
               max != null ? '$current / $max' : '$current',
               style: TextStyle(
@@ -490,7 +526,7 @@ class _ResourceBar extends StatelessWidget {
 
 class _InventoryItem extends StatelessWidget {
   const _InventoryItem({required this.item, required this.onRemove});
-  final String item;
+  final Item item;
   final VoidCallback onRemove;
 
   @override
@@ -500,15 +536,22 @@ class _InventoryItem extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(Icons.circle, size: 6, color: cs.onSurface.withValues(alpha: 0.4)),
+          Icon(
+            Icons.circle,
+            size: 6,
+            color: cs.onSurface.withValues(alpha: 0.4),
+          ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(item, style: const TextStyle(fontSize: 13)),
+            child: Text(item.name, style: const TextStyle(fontSize: 13)),
           ),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(Icons.remove_circle_outline,
-                size: 18, color: cs.error.withValues(alpha: 0.7)),
+            child: Icon(
+              Icons.remove_circle_outline,
+              size: 18,
+              color: cs.error.withValues(alpha: 0.7),
+            ),
           ),
         ],
       ),
@@ -534,12 +577,20 @@ class _AddItemField extends StatelessWidget {
             style: const TextStyle(fontSize: 13),
             decoration: InputDecoration(
               hintText: 'Añadir objeto...',
-              hintStyle: TextStyle(fontSize: 13, color: cs.onSurface.withValues(alpha: 0.4)),
+              hintStyle: TextStyle(
+                fontSize: 13,
+                color: cs.onSurface.withValues(alpha: 0.4),
+              ),
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.5)),
+                borderSide: BorderSide(
+                  color: cs.outline.withValues(alpha: 0.5),
+                ),
               ),
             ),
             onSubmitted: (_) => onAdd(),

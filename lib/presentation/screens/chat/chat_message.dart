@@ -6,14 +6,9 @@ class ChatMessage extends StatelessWidget {
   final String text;
   final bool isFromUser;
 
-  const ChatMessage({
-    super.key,
-    required this.text,
-    required this.isFromUser,
-  });
+  const ChatMessage({super.key, required this.text, required this.isFromUser});
 
   @override
-
   /// Builds a chat message widget.
   ///
   /// This widget displays a single chat message within a styled container. The
@@ -28,7 +23,6 @@ class ChatMessage extends StatelessWidget {
   /// user.
   ///
   /// The [context] parameter is used to access theme data and localizations.
-
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
@@ -36,8 +30,9 @@ class ChatMessage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        mainAxisAlignment:
-            isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isFromUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
           Flexible(
             child: Container(

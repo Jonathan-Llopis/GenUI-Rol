@@ -87,7 +87,13 @@ class SendGameChoiceUsecase {
       role: MessageRole.narrator,
       text: response.story,
       choices: response.choices,
-      characterUpdates: response.characterUpdates.isEmpty ? null : response.characterUpdates,
+      characterUpdates: response.characterUpdates.isEmpty
+          ? null
+          : response.characterUpdates,
+      inventoryUpdates: response.inventoryUpdates.isEmpty
+          ? null
+          : response.inventoryUpdates,
+      combatState: response.combat,
       timestamp: now.add(const Duration(milliseconds: 1)),
     );
 
@@ -102,7 +108,9 @@ class LoadSessionUsecase {
   const LoadSessionUsecase(this._repository);
   final SessionRepository _repository;
 
-  Future<({GameSession? session, List<StoryMessage> messages})> call(String sessionId) async {
+  Future<({GameSession? session, List<StoryMessage> messages})> call(
+    String sessionId,
+  ) async {
     final session = await _repository.getSession(sessionId);
     final messages = await _repository.getMessages(sessionId);
     return (session: session, messages: messages);

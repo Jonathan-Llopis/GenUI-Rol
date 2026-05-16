@@ -14,8 +14,11 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 class InputTextImage extends StatefulWidget {
-  const InputTextImage(
-      {super.key, required this.focusNode, required this.isAssitant});
+  const InputTextImage({
+    super.key,
+    required this.focusNode,
+    required this.isAssitant,
+  });
 
   final bool isAssitant;
   final FocusNode focusNode;
@@ -31,7 +34,6 @@ class _InputTextState extends State<InputTextImage> {
   final TextEditingController textController = TextEditingController();
 
   @override
-
   /// Initializes the state of the widget by performing the following actions:
   ///
   /// 1. Calls the superclass's initState method to ensure proper
@@ -42,7 +44,6 @@ class _InputTextState extends State<InputTextImage> {
   ///    recognition features.
   /// 4. Checks the availability of the speech recognition service and
   ///    updates the state accordingly.
-
   void initState() {
     super.initState();
     _checkPermissions();
@@ -151,7 +152,6 @@ class _InputTextState extends State<InputTextImage> {
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
   @override
-
   /// Builds the input field widget for chat interaction.
   ///
   /// This widget contains a [TextField] for user input, an image picker button,
@@ -164,7 +164,6 @@ class _InputTextState extends State<InputTextImage> {
   /// The send button dispatches a message to the [ChatBloc], optionally with
   /// attached image bytes if an image is selected. The widget supports animated
   /// transitions to indicate loading states and button actions.
-
   Widget build(BuildContext context) {
     TextEditingController textController = TextEditingController();
     final theme = Theme.of(context);
@@ -173,17 +172,12 @@ class _InputTextState extends State<InputTextImage> {
         return Card(
           margin: EdgeInsets.zero,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 15,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             child: Row(
               children: [
                 Expanded(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: 150,
-                    ),
+                    constraints: BoxConstraints(maxHeight: 150),
                     child: TextField(
                       controller: textController,
                       focusNode: widget.focusNode,
@@ -199,16 +193,16 @@ class _InputTextState extends State<InputTextImage> {
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         fillColor: Colors.grey[200],
                         filled: true,
                       ),
                       onSubmitted: (_) {
                         context.read<ChatBloc>().add(
-                              OnChatGeminiSendMessage(
-                                message: textController.text,
-                              ),
-                            );
+                          OnChatGeminiSendMessage(message: textController.text),
+                        );
                         textController.clear();
                         widget.focusNode.requestFocus();
                       },
@@ -259,8 +253,8 @@ class _InputTextState extends State<InputTextImage> {
                       : IconButton(
                           onPressed: _speechEnabled
                               ? (_speechToText.isListening
-                                  ? _stopListening
-                                  : _startListening)
+                                    ? _stopListening
+                                    : _startListening)
                               : null,
                           tooltip: 'Dictado',
                           icon: Icon(
@@ -292,34 +286,31 @@ class _InputTextState extends State<InputTextImage> {
                                   List<ByteData>? imageBytes;
                                   if (_image != null) {
                                     imageBytes = [
-                                      (await _image!.readAsBytes())
-                                          .buffer
-                                          .asByteData()
+                                      (await _image!.readAsBytes()).buffer
+                                          .asByteData(),
                                     ];
                                   }
                                   widget.isAssitant
                                       ? context.read<ChatBloc>().add(
-                                            OnChatAssistantSendMessage(
-                                              message: textController.text,
-                                              imageBytes: imageBytes,
-                                            ),
-                                          )
+                                          OnChatAssistantSendMessage(
+                                            message: textController.text,
+                                            imageBytes: imageBytes,
+                                          ),
+                                        )
                                       : context.read<ChatBloc>().add(
-                                            OnChatGeminiSendMessage(
-                                              message: textController.text,
-                                              imageBytes: imageBytes,
-                                            ),
-                                          );
+                                          OnChatGeminiSendMessage(
+                                            message: textController.text,
+                                            imageBytes: imageBytes,
+                                          ),
+                                        );
                                   textController.clear();
                                   _image = null;
                                 },
-                                icon: Icon(
-                                  Icons.send,
-                                  color: Colors.white,
-                                ),
+                                icon: Icon(Icons.send, color: Colors.white),
                                 style: IconButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primary,
                                   shape: const CircleBorder(),
                                   padding: const EdgeInsets.all(16),
                                 ),
@@ -341,44 +332,38 @@ class _InputTextState extends State<InputTextImage> {
     return Container(
       height: 100.0,
       width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 20,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        children: <Widget>[
+          Text(
+            AppLocalizations.of(context)!.add_profile_image,
+            style: TextStyle(fontSize: 20.0),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextButton.icon(
+                icon: const Icon(Icons.camera),
+                onPressed: () {
+                  takePhoto(ImageSource.camera);
+                  Navigator.pop(context);
+                },
+                label: Text(AppLocalizations.of(context)!.camera),
+              ),
+              const SizedBox(width: 10),
+              TextButton.icon(
+                icon: const Icon(Icons.image),
+                onPressed: () {
+                  takePhoto(ImageSource.gallery);
+                  Navigator.pop(context);
+                },
+                label: Text(AppLocalizations.of(context)!.gallery),
+              ),
+            ],
+          ),
+        ],
       ),
-      child: Column(children: <Widget>[
-        Text(
-          AppLocalizations.of(context)!.add_profile_image,
-          style: TextStyle(
-            fontSize: 20.0,
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          TextButton.icon(
-            icon: const Icon(Icons.camera),
-            onPressed: () {
-              takePhoto(ImageSource.camera);
-              Navigator.pop(context);
-            },
-            label: Text(AppLocalizations.of(context)!.camera),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          TextButton.icon(
-            icon: const Icon(Icons.image),
-            onPressed: () {
-              takePhoto(ImageSource.gallery);
-              Navigator.pop(context);
-            },
-            label: Text(
-              AppLocalizations.of(context)!.gallery,
-            ),
-          )
-        ])
-      ]),
     );
   }
 

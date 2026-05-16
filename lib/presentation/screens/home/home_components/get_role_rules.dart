@@ -47,7 +47,7 @@ class _SystemCard extends StatelessWidget {
             Image.asset(
               system.imageAsset,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -77,10 +77,7 @@ class _SystemCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    system.icon,
-                    style: const TextStyle(fontSize: 40),
-                  ),
+                  Text(system.icon, style: const TextStyle(fontSize: 40)),
                   const SizedBox(height: 8),
                   Text(
                     system.name,
@@ -92,21 +89,33 @@ class _SystemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: _genreColor(system.genre).withOpacity(0.3),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: _genreColor(system.genre), width: 1),
+                      border: Border.all(
+                        color: _genreColor(system.genre),
+                        width: 1,
+                      ),
                     ),
                     child: Text(
                       system.genre,
-                      style: TextStyle(color: _genreColor(system.genre), fontSize: 11),
+                      style: TextStyle(
+                        color: _genreColor(system.genre),
+                        fontSize: 11,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     system.description,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),

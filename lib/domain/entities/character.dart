@@ -1,3 +1,4 @@
+import 'package:rol_genui/domain/entities/item.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
 
 class Character {
@@ -25,7 +26,7 @@ class Character {
   final String? race;
   final String? occupation;
   final String? imagePrompt;
-  final List<String> inventory;
+  final List<Item> inventory;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -41,7 +42,7 @@ class Character {
     String? race,
     String? occupation,
     String? imagePrompt,
-    List<String>? inventory,
+    List<Item>? inventory,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {

@@ -8,6 +8,8 @@ import 'package:rol_genui/core/logging/app_logger.dart';
 import 'package:rol_genui/domain/entities/character.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
 import 'package:rol_genui/core/prompts/game_prompt_builder.dart';
+import 'package:rol_genui/domain/entities/combat.dart';
+import 'package:rol_genui/domain/entities/inventory.dart';
 
 final _chatLog = getLogger('ChatRemoteDataSource');
 final _gameLog = getLogger('GameRemoteDataSource');
@@ -45,6 +47,8 @@ class StoryTurnResponse {
     required this.choices,
     required this.imagePrompt,
     this.characterUpdates = const {},
+    this.inventoryUpdates = const [],
+    this.combat,
     this.sessionTitle,
   });
 
@@ -52,6 +56,8 @@ class StoryTurnResponse {
   final List<String> choices;
   final String imagePrompt;
   final Map<String, int> characterUpdates;
+  final List<InventoryUpdate> inventoryUpdates;
+  final CombatState? combat;
   final String? sessionTitle;
 
   factory StoryTurnResponse.fromJson(Map<String, dynamic> json) {
@@ -68,6 +74,14 @@ class StoryTurnResponse {
             (k, v) => MapEntry(k, (v as num).toInt()),
           ) ??
           {},
+      inventoryUpdates:
+          (json['inventory_updates'] as List<dynamic>?)
+              ?.map((e) => InventoryUpdate.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      combat: json['combat'] != null
+          ? CombatState.fromJson(json['combat'] as Map<String, dynamic>)
+          : null,
       sessionTitle: json['session_title'] as String?,
     );
   }
@@ -92,7 +106,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
   Future<String> startChatGemini(String prompt) async {
     _chatLog.info('Iniciando chat Gemini');
-    _chatLog.fine('Prompt: ${prompt.substring(0, prompt.length.clamp(0, 100))}...');
+    _chatLog.fine(
+      'Prompt: ${prompt.substring(0, prompt.length.clamp(0, 100))}...',
+    );
     try {
       chat = model.startChat();
       final response = await chat.sendMessage(Content.text(prompt));
@@ -112,14 +128,18 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String message,
     List<ByteData>? imageBytes,
   ) async {
-    _chatLog.fine('Enviando mensaje Gemini (imágenes: ${imageBytes?.length ?? 0})');
+    _chatLog.fine(
+      'Enviando mensaje Gemini (imágenes: ${imageBytes?.length ?? 0})',
+    );
     try {
       List<Content> content = [Content.text(message)];
       if (imageBytes != null && imageBytes.isNotEmpty) {
         final dataParts = imageBytes
             .map((b) => DataPart('image/jpeg', b.buffer.asUint8List()))
             .toList();
-        content = [Content.multi([TextPart(message), ...dataParts])];
+        content = [
+          Content.multi([TextPart(message), ...dataParts]),
+        ];
       }
       final response = await chat.sendMessage(content.first);
       if (response.text.isNotEmpty) return response.text.toString();
@@ -156,7 +176,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         final dataParts = imageBytes
             .map((b) => DataPart('image/jpeg', b.buffer.asUint8List()))
             .toList();
-        content = [Content.multi([TextPart(message), ...dataParts])];
+        content = [
+          Content.multi([TextPart(message), ...dataParts]),
+        ];
       }
       final response = await chat.sendMessage(content.first);
       if (response.text.isNotEmpty) return response.text.toString();
@@ -184,7 +206,9 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
     required RuleSystem system,
     required String languageCode,
   }) async {
-    _gameLog.info('Iniciando sesión de juego: personaje="${character.name}" sistema=${system.id.name} idioma=$languageCode');
+    _gameLog.info(
+      'Iniciando sesión de juego: personaje="${character.name}" sistema=${system.id.name} idioma=$languageCode',
+    );
     try {
       final systemPrompt = buildSystemPrompt(
         character: character,
@@ -213,7 +237,9 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
 
       final response = await _gameChat!.sendMessage(Content.text(startPrompt));
       final result = _parseStoryResponse(response.text ?? '{}');
-      _gameLog.info('Sesión iniciada correctamente. Opciones: ${result.choices.length}');
+      _gameLog.info(
+        'Sesión iniciada correctamente. Opciones: ${result.choices.length}',
+      );
       return result;
     } catch (e, st) {
       _gameLog.severe('Error al iniciar sesión de juego', e, st);
@@ -232,12 +258,19 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
       throw Exception('No hay sesión de juego activa.');
     }
     try {
-      final prompt = buildChoicePrompt(choice: choice, languageCode: languageCode);
+      final prompt = buildChoicePrompt(
+        choice: choice,
+        languageCode: languageCode,
+      );
       final response = await _gameChat!.sendMessage(Content.text(prompt));
       final result = _parseStoryResponse(response.text ?? '{}');
-      _gameLog.info('Elección procesada. Nuevas opciones: ${result.choices.length}');
+      _gameLog.info(
+        'Elección procesada. Nuevas opciones: ${result.choices.length}',
+      );
       if (result.characterUpdates.isNotEmpty) {
-        _gameLog.fine('Actualizaciones de estadísticas: ${result.characterUpdates}');
+        _gameLog.fine(
+          'Actualizaciones de estadísticas: ${result.characterUpdates}',
+        );
       }
       return result;
     } catch (e, st) {
@@ -248,7 +281,9 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
 
   @override
   Future<Uint8List?> generateSceneImage(String imagePrompt) async {
-    _gameLog.fine('Generando imagen de escena: "${imagePrompt.substring(0, imagePrompt.length.clamp(0, 80))}"');
+    _gameLog.fine(
+      'Generando imagen de escena: "${imagePrompt.substring(0, imagePrompt.length.clamp(0, 80))}"',
+    );
     // Intenta primero con Gemini (requiere Blaze; si el usuario lo activa, funciona)
     final geminiResult = await _generateWithGemini(imagePrompt);
     if (geminiResult != null) return geminiResult;
@@ -268,9 +303,9 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
         'contents': [
           {
             'parts': [
-              {'text': prompt}
-            ]
-          }
+              {'text': prompt},
+            ],
+          },
         ],
         'generationConfig': {
           'responseModalities': ['IMAGE', 'TEXT'],
@@ -281,14 +316,20 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
           .timeout(const Duration(seconds: 45));
 
       if (response.statusCode != 200) {
-        _gameLog.fine('Gemini image no disponible (status ${response.statusCode}), usando fallback');
+        _gameLog.fine(
+          'Gemini image no disponible (status ${response.statusCode}), usando fallback',
+        );
         return null;
       }
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      final parts = ((json['candidates'] as List?)?.first?['content']?['parts'] as List?) ?? [];
+      final parts =
+          ((json['candidates'] as List?)?.first?['content']?['parts']
+              as List?) ??
+          [];
       for (final part in parts) {
         final inlineData = part['inlineData'] as Map<String, dynamic>?;
-        if (inlineData != null && (inlineData['mimeType'] as String? ?? '').startsWith('image/')) {
+        if (inlineData != null &&
+            (inlineData['mimeType'] as String? ?? '').startsWith('image/')) {
           final bytes = base64Decode(inlineData['data'] as String);
           _gameLog.info('Imagen Gemini generada (${bytes.length} bytes)');
           return bytes;
@@ -304,12 +345,16 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
   Future<Uint8List?> _generateWithPicsum(String imagePrompt) async {
     try {
       // Seed determinista: cada escena siempre tiene la misma imagen
-      final seed = imagePrompt.codeUnits.fold(0, (a, b) => (a * 31 + b) & 0x7FFFFFFF) % 1000;
+      final seed =
+          imagePrompt.codeUnits.fold(0, (a, b) => (a * 31 + b) & 0x7FFFFFFF) %
+          1000;
       final uri = Uri.parse('https://picsum.photos/seed/$seed/512/256');
       _gameLog.fine('Picsum fallback seed=$seed');
       final response = await http.get(uri).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
-        _gameLog.info('Imagen Picsum cargada (${response.bodyBytes.length} bytes, seed=$seed)');
+        _gameLog.info(
+          'Imagen Picsum cargada (${response.bodyBytes.length} bytes, seed=$seed)',
+        );
         return response.bodyBytes;
       }
       _gameLog.warning('Picsum respondió con status ${response.statusCode}');
@@ -336,7 +381,9 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
       final json = jsonDecode(cleaned) as Map<String, dynamic>;
       return StoryTurnResponse.fromJson(json);
     } catch (e) {
-      _gameLog.warning('No se pudo parsear JSON de la respuesta, usando texto plano. Error: $e');
+      _gameLog.warning(
+        'No se pudo parsear JSON de la respuesta, usando texto plano. Error: $e',
+      );
       return StoryTurnResponse(
         story: rawText,
         choices: ['Continuar...'],

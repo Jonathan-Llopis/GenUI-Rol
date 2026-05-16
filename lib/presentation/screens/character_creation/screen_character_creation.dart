@@ -14,7 +14,8 @@ class ScreenCharacterCreation extends StatefulWidget {
   final RuleSystem system;
 
   @override
-  State<ScreenCharacterCreation> createState() => _ScreenCharacterCreationState();
+  State<ScreenCharacterCreation> createState() =>
+      _ScreenCharacterCreationState();
 }
 
 class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
@@ -76,14 +77,17 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
       child: BlocConsumer<CharacterBloc, CharacterState>(
         listener: (context, state) {
           if (state is CharacterOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('¡Personaje creado!')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('¡Personaje creado!')));
             context.pop();
           }
           if (state is CharacterError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -106,12 +110,14 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
                     ),
-                    validator: (v) => v == null || v.isEmpty ? 'El nombre es obligatorio' : null,
+                    validator: (v) => v == null || v.isEmpty
+                        ? 'El nombre es obligatorio'
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   // ── Selector de clase / ocupación ──────────────────────────
                   DropdownButtonFormField<String>(
-                    value: _selectedClass,
+                    initialValue: _selectedClass,
                     decoration: InputDecoration(
                       labelText: '${widget.system.classLabel} *',
                       border: const OutlineInputBorder(),
@@ -131,14 +137,16 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
                   // ── Selector de raza / ancestría (no aplica en CoC) ────────
                   if (widget.system.hasRaces) ...[
                     DropdownButtonFormField<String>(
-                      value: _selectedRace,
+                      initialValue: _selectedRace,
                       decoration: InputDecoration(
                         labelText: widget.system.raceLabel,
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.face),
                       ),
                       items: widget.system.races
-                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                          .map(
+                            (r) => DropdownMenuItem(value: r, child: Text(r)),
+                          )
                           .toList(),
                       onChanged: (v) => setState(() => _selectedRace = v),
                       isExpanded: true,
@@ -163,7 +171,8 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
                   _StatsEditor(
                     system: widget.system,
                     stats: _stats,
-                    onChanged: (key, value) => setState(() => _stats[key] = value),
+                    onChanged: (key, value) =>
+                        setState(() => _stats[key] = value),
                   ),
                   const SizedBox(height: 32),
                   if (state is CharacterLoading)
@@ -212,7 +221,11 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Divider(color: Theme.of(context).colorScheme.primary.withOpacity(0.4))),
+        Expanded(
+          child: Divider(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
@@ -223,14 +236,22 @@ class _SectionHeader extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(child: Divider(color: Theme.of(context).colorScheme.primary.withOpacity(0.4))),
+        Expanded(
+          child: Divider(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+          ),
+        ),
       ],
     );
   }
 }
 
 class _StatsEditor extends StatelessWidget {
-  const _StatsEditor({required this.system, required this.stats, required this.onChanged});
+  const _StatsEditor({
+    required this.system,
+    required this.stats,
+    required this.onChanged,
+  });
   final RuleSystem system;
   final Map<String, int> stats;
   final void Function(String key, int value) onChanged;

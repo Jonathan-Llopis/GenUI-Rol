@@ -7,7 +7,6 @@ import 'package:rol_genui/presentation/blocs/chat/chat_state.dart';
 import 'package:rol_genui/presentation/screens/chat/chat_message.dart';
 import 'package:rol_genui/presentation/screens/chat/input_text_image.dart';
 
-
 class ScreenChat extends StatefulWidget {
   const ScreenChat({super.key});
 
@@ -18,14 +17,12 @@ class ScreenChat extends StatefulWidget {
 class _ChatScreenState extends State<ScreenChat> {
   final FocusNode _focusNode = FocusNode();
   @override
-
   /// Initializes the state of the chat Gemini screen.
   ///
   /// This function is called when the widget is inserted into the tree.
   ///
   /// If the Gemini chat messages are empty, it adds a [OnChatGeminiStart] event
   /// to the [ChatBloc] to start the chat with Gemini.
-
   void initState() {
     ChatBloc chatBloc = context.read<ChatBloc>();
     if (chatBloc.state.messagesGemini.isEmpty) {
@@ -36,7 +33,6 @@ class _ChatScreenState extends State<ScreenChat> {
   }
 
   @override
-
   /// Called when the widget is removed from the tree permanently.
   ///
   /// This is the opposite of [initState]. It is called when the widget is
@@ -54,7 +50,6 @@ class _ChatScreenState extends State<ScreenChat> {
   }
 
   @override
-
   /// Builds the chat Gemini screen.
   ///
   /// This screen is used to chat with Gemini about board games. It shows the
@@ -72,61 +67,58 @@ class _ChatScreenState extends State<ScreenChat> {
   /// it can retrieve the messages from the bloc.
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Icon(Icons.auto_awesome,
-                  color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.identify_board_games,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Icon(
+              Icons.auto_awesome,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.identify_board_games,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
-                  Text(
-                    AppLocalizations.of(context)!.ai_assistant,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.6),
-                        ),
+                ),
+                Text(
+                  AppLocalizations.of(context)!.ai_assistant,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
                   ),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            Tooltip(
-              message: AppLocalizations.of(context)!.restart_conversation,
-              child: IconButton(
-                icon: Icon(Icons.restart_alt, size: 28),
-                onPressed: () {
-                  context
-                      .read<ChatBloc>()
-                      .add(OnChatGeminiStart(context: context));
-                  setState(() {});
-                },
-              ),
+                ),
+              ],
             ),
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: BodyMessages(),
+        actions: [
+          Tooltip(
+            message: AppLocalizations.of(context)!.restart_conversation,
+            child: IconButton(
+              icon: Icon(Icons.restart_alt, size: 28),
+              onPressed: () {
+                context.read<ChatBloc>().add(
+                  OnChatGeminiStart(context: context),
+                );
+                setState(() {});
+              },
             ),
-            InputTextImage(
-              focusNode: _focusNode,
-              isAssitant: false,
-            ),
-          ],
-        ));
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(child: BodyMessages()),
+          InputTextImage(focusNode: _focusNode, isAssitant: false),
+        ],
+      ),
+    );
   }
 }
 
@@ -134,7 +126,6 @@ class BodyMessages extends StatelessWidget {
   const BodyMessages({super.key});
 
   @override
-
   /// Builds a widget that displays the chat messages with Gemini.
   ///
   /// This widget uses a [BlocBuilder] to listen to the state of the [ChatBloc].
@@ -145,7 +136,6 @@ class BodyMessages extends StatelessWidget {
   /// The [scrollController] is used to manage the scrolling of the [ListView].
   /// The widget triggers a post-frame callback to ensure the list scrolls to the
   /// latest message once the frame is rendered.
-
   Widget build(BuildContext context) {
     ScrollController scrollController = ScrollController();
 
@@ -154,8 +144,9 @@ class BodyMessages extends StatelessWidget {
         if (state.messagesGemini.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (scrollController.hasClients) {
-              scrollController
-                  .jumpTo(scrollController.position.maxScrollExtent);
+              scrollController.jumpTo(
+                scrollController.position.maxScrollExtent,
+              );
             }
           });
 

@@ -9,7 +9,11 @@ abstract class GameEvent extends Equatable {
 }
 
 class StartNewGame extends GameEvent {
-  const StartNewGame({required this.character, required this.system, required this.languageCode});
+  const StartNewGame({
+    required this.character,
+    required this.system,
+    required this.languageCode,
+  });
   final Character character;
   final RuleSystem system;
   final String languageCode;
@@ -18,7 +22,11 @@ class StartNewGame extends GameEvent {
 }
 
 class MakeChoice extends GameEvent {
-  const MakeChoice({required this.choice, required this.choiceIndex, required this.languageCode});
+  const MakeChoice({
+    required this.choice,
+    required this.choiceIndex,
+    required this.languageCode,
+  });
   final String choice;
   final int choiceIndex;
   final String languageCode;

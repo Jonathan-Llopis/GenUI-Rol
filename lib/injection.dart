@@ -29,13 +29,21 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<DatabaseDataSource>(() => db);
 
   // ── Data sources ────────────────────────────────────────────────────────────
-  sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSourceImpl());
-  sl.registerLazySingleton<GameRemoteDataSource>(() => GameRemoteDataSourceImpl());
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<GameRemoteDataSource>(
+    () => GameRemoteDataSourceImpl(),
+  );
 
   // ── Repositories ────────────────────────────────────────────────────────────
   sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
-  sl.registerLazySingleton<CharacterRepository>(() => CharacterRepositoryImpl(sl()));
-  sl.registerLazySingleton<SessionRepository>(() => SessionRepositoryImpl(sl()));
+  sl.registerLazySingleton<CharacterRepository>(
+    () => CharacterRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<SessionRepository>(
+    () => SessionRepositoryImpl(sl()),
+  );
 
   // ── Chat use cases ──────────────────────────────────────────────────────────
   sl.registerLazySingleton(() => StartChatGeminiUsecases(sl()));
@@ -61,19 +69,23 @@ Future<void> configureDependencies() async {
   // ── BLoCs ───────────────────────────────────────────────────────────────────
   sl.registerFactory<LanguageBloc>(() => LanguageBloc(sl()));
   sl.registerFactory<ChatBloc>(() => ChatBloc(sl(), sl(), sl(), sl()));
-  sl.registerFactory<CharacterBloc>(() => CharacterBloc(
-    createCharacterUsecase: sl(),
-    updateCharacterUsecase: sl(),
-    deleteCharacterUsecase: sl(),
-    getCharactersBySystemUsecase: sl(),
-  ));
-  sl.registerFactory<GameBloc>(() => GameBloc(
-    startGameSessionUsecase: sl(),
-    sendGameChoiceUsecase: sl(),
-    loadSessionUsecase: sl(),
-    generateSceneImageUsecase: sl(),
-    updateCharacterUsecase: sl<UpdateCharacterUsecase>(),
-  ));
+  sl.registerFactory<CharacterBloc>(
+    () => CharacterBloc(
+      createCharacterUsecase: sl(),
+      updateCharacterUsecase: sl(),
+      deleteCharacterUsecase: sl(),
+      getCharactersBySystemUsecase: sl(),
+    ),
+  );
+  sl.registerFactory<GameBloc>(
+    () => GameBloc(
+      startGameSessionUsecase: sl(),
+      sendGameChoiceUsecase: sl(),
+      loadSessionUsecase: sl(),
+      generateSceneImageUsecase: sl(),
+      updateCharacterUsecase: sl<UpdateCharacterUsecase>(),
+    ),
+  );
 
   // ── Services ────────────────────────────────────────────────────────────────
   sl.registerLazySingleton(() => http.Client());

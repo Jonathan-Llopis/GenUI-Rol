@@ -5,13 +5,15 @@ import 'package:rol_genui/domain/repositories/character_repository.dart';
 class CreateCharacterUsecase {
   const CreateCharacterUsecase(this._repository);
   final CharacterRepository _repository;
-  Future<void> call(Character character) => _repository.createCharacter(character);
+  Future<void> call(Character character) =>
+      _repository.createCharacter(character);
 }
 
 class UpdateCharacterUsecase {
   const UpdateCharacterUsecase(this._repository);
   final CharacterRepository _repository;
-  Future<void> call(Character character) => _repository.updateCharacter(character);
+  Future<void> call(Character character) =>
+      _repository.updateCharacter(character);
 }
 
 class DeleteCharacterUsecase {

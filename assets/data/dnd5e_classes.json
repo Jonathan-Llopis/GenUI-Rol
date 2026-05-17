@@ -1,0 +1,73 @@
+[
+  {
+    "id": "barbaro",
+    "name": "Bárbaro",
+    "description": "Estos bárbaros, por diferentes que sean, se definen por su rabia: una furia desenfrenada, inagotable e irreflexiva. Más que una mera emoción, su ira es la ferocidad de un depredador acorralado.",
+    "hitDie": "1d12",
+    "hpAtLevel1": 12,
+    "proficiencies": {
+      "armor": ["Ligera", "Media", "Escudos"],
+      "weapons": ["Simples", "Marciales"],
+      "savingThrows": ["STR", "CON"],
+      "skills": {
+        "choose": 2,
+        "options": ["Atletismo", "Intimidación", "Naturaleza", "Percepción", "Supervivencia", "Tacto con Animales"]
+      }
+    },
+    "features": [
+      {
+        "level": 1,
+        "name": "Furia",
+        "description": "En combate, luchas con una ferocidad primitiva. En tu turno, puedes entrar en furia como acción adicional."
+      },
+      {
+        "level": 1,
+        "name": "Defensa sin Armadura",
+        "description": "Mientras no lleves ninguna armadura, tu Clase de Armadura será de 10 + Modificador de Destreza + Modificador de Constitución."
+      },
+      {
+        "level": 2,
+        "name": "Ataque Temerario",
+        "description": "Te da ventaja en un ataque de armas cuerpo a cuerpo que use Fuerza durante este turno, pero los ataques contra ti tienen ventaja hasta el siguiente turno."
+      },
+      {
+        "level": 2,
+        "name": "Sentido del peligro",
+        "description": "Tienes ventaja en las tiradas de salvación de Destreza contra los efectos que puedas ver, como trampas y hechizos."
+      }
+    ]
+  },
+  {
+    "id": "guerrero",
+    "name": "Guerrero",
+    "description": "Los guerreros son expertos en el combate con armas, capaces de dominar una amplia variedad de técnicas de lucha y equipo de protección.",
+    "hitDie": "1d10",
+    "hpAtLevel1": 10,
+    "proficiencies": {
+      "armor": ["Todas las armaduras", "Escudos"],
+      "weapons": ["Simples", "Marciales"],
+      "savingThrows": ["STR", "CON"],
+      "skills": {
+        "choose": 2,
+        "options": ["Acrobacias", "Atletismo", "Historia", "Perspicacia", "Intimidación", "Percepción", "Supervivencia", "Tacto con Animales"]
+      }
+    },
+    "features": [
+      {
+        "level": 1,
+        "name": "Estilo de Combate",
+        "description": "Adoptas un estilo particular de combate como tu especialidad."
+      },
+      {
+        "level": 1,
+        "name": "Vientos Segundos",
+        "description": "Tienes una reserva limitada de aguante a la que puedes recurrir para protegerte del daño. En tu turno, puedes usar una acción adicional para recuperar puntos de golpe."
+      },
+      {
+        "level": 2,
+        "name": "Acción Súbita",
+        "description": "Puedes forzarte más allá de tus límites normales durante un momento. En tu turno, puedes realizar una acción adicional además de tu acción normal y tu posible acción adicional."
+      }
+    ]
+  }
+]

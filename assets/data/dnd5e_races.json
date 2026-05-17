@@ -1,0 +1,141 @@
+[
+  {
+    "id": "enano",
+    "name": "Enano",
+    "description": "Reinos ricos en antiguo esplendor, salas esculpidas en las raíces de las montañas...",
+    "statModifiers": {
+      "CON": 2
+    },
+    "size": "Mediano",
+    "speed": 25,
+    "languages": [
+      "Común",
+      "Enano"
+    ],
+    "traits": [
+      {
+        "name": "Visión en la Oscuridad",
+        "description": "..."
+      },
+      {
+        "name": "Resistencia Enana",
+        "description": "..."
+      }
+    ],
+    "subraces": [
+      {
+        "id": "enano-colina",
+        "name": "Enano de las Colinas",
+        "statModifiers": {
+          "WIS": 1
+        },
+        "traits": [
+          {
+            "name": "Resistencia de los enanos",
+            "description": "Tu máximo de puntos de golpe aumenta en 1..."
+          }
+        ]
+      },
+      {
+        "id": "enano-montaña",
+        "name": "Enano de las Montañas",
+        "statModifiers": {
+          "STR": 2
+        },
+        "traits": [
+          {
+            "name": "Entrenamiento de Armadura Enana",
+            "description": "..."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "elfo",
+    "name": "Elfo",
+    "description": "Los elfos son un pueblo mágico de gracia sobrenatural...",
+    "statModifiers": {
+      "DEX": 2
+    },
+    "size": "Mediano",
+    "speed": 30,
+    "languages": [
+      "Común",
+      "Élfico"
+    ],
+    "traits": [
+      {
+        "name": "Visión en la Oscuridad",
+        "description": "..."
+      },
+      {
+        "name": "Ascendencia Feérica",
+        "description": "..."
+      }
+    ],
+    "subraces": [
+      {
+        "id": "alto-elfo",
+        "name": "Alto Elfo",
+        "statModifiers": {
+          "INT": 1
+        },
+        "traits": []
+      },
+      {
+        "id": "elfo-bosques",
+        "name": "Elfo del Bosque",
+        "statModifiers": {
+          "WIS": 1
+        },
+        "speed": 35,
+        "traits": []
+      },
+      {
+        "id": "elfo-drow",
+        "name": "Elfo Drow",
+        "statModifiers": {
+          "CHA": 1
+        },
+        "traits": []
+      }
+    ]
+  },
+  {
+    "id": "humano",
+    "name": "Humano",
+    "description": "...",
+    "statModifiers": {
+      "STR": 1, "DEX": 1, "CON": 1, "INT": 1, "WIS": 1, "CHA": 1
+    },
+    "size": "Mediano",
+    "speed": 30,
+    "languages": ["Común"],
+    "traits": []
+  },
+  {
+    "id": "mediano",
+    "name": "Mediano",
+    "description": "...",
+    "statModifiers": { "DEX": 2 },
+    "size": "Pequeño",
+    "speed": 25,
+    "languages": ["Común", "Mediano"],
+    "traits": [],
+    "subraces": [
+      {
+        "id": "mediano-piesligeros",
+        "name": "Mediano Pie Ligero",
+        "statModifiers": { "CHA": 1 },
+        "traits": []
+      },
+      {
+        "id": "mediano-robusto",
+        "name": "Mediano Robusto",
+        "statModifiers": { "CON": 1 },
+        "traits": []
+      }
+    ]
+  }
+]

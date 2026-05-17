@@ -6,6 +6,7 @@ import 'package:rol_genui/config/router/routes.dart';
 import 'package:rol_genui/core/logging/app_logger.dart';
 import 'package:rol_genui/injection.dart';
 import 'package:rol_genui/l10n/l10n/app_localizations.dart';
+import 'package:rol_genui/data/repositories/rule_repository.dart';
 import 'package:rol_genui/presentation/blocs/language/language_bloc.dart';
 import 'package:rol_genui/presentation/blocs/language/language_event.dart';
 import 'package:rol_genui/presentation/blocs/language/language_state.dart';
@@ -25,7 +26,8 @@ void main() async {
   _log.config('Variables de entorno cargadas');
 
   await configureDependencies();
-  _log.info('Dependencias configuradas');
+  await sl<RuleRepository>().init();
+  _log.info('Dependencias configuradas y reglas cargadas');
 
   runApp(const MyApp());
 }

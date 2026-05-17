@@ -9,6 +9,7 @@ import 'package:rol_genui/domain/usecases/character_usecases/character_usecases.
 import 'package:rol_genui/domain/usecases/session_usecases/session_usecases.dart';
 import 'package:rol_genui/presentation/blocs/character/character_bloc.dart';
 import 'package:rol_genui/presentation/blocs/game/game_bloc.dart';
+import 'package:rol_genui/data/repositories/rule_repository.dart';
 import 'package:rol_genui/presentation/blocs/language/language_bloc.dart';
 import 'package:rol_genui/presentation/blocs/settings/settings_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,5 +83,6 @@ Future<void> configureDependencies() async {
   // ── Services ────────────────────────────────────────────────────────────────
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => Dio());
+  sl.registerLazySingleton(() => RuleRepository());
   sl.registerLazySingleton(() => ModelDownloader(sl()));
 }

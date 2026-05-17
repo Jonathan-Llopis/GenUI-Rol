@@ -97,36 +97,44 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       final msg = result.narratorMessage;
 
       // 1. Stats updates
-      if (msg.characterUpdates != null) {
-        final updates = msg.characterUpdates!;
-        _log.fine('Aplicando actualizaciones de estadísticas: $updates');
-        final newStats = Map<String, int>.from(updatedCharacter.stats);
-        updates.forEach((key, delta) {
-          if (newStats.containsKey(key)) {
-            final maxKey = 'MAX_$key';
-            final maxVal = newStats[maxKey] ?? newStats[key]!;
-            newStats[key] = (newStats[key]! + delta).clamp(0, maxVal);
-          }
-        });
-        updatedCharacter = updatedCharacter.copyWith(stats: newStats);
+      try {
+        if (msg.characterUpdates != null) {
+          final updates = msg.characterUpdates!;
+          _log.fine('Aplicando actualizaciones de estadísticas: $updates');
+          final newStats = Map<String, int>.from(updatedCharacter.stats);
+          updates.forEach((key, delta) {
+            if (newStats.containsKey(key)) {
+              final maxKey = 'MAX_$key';
+              final maxVal = newStats[maxKey] ?? newStats[key]!;
+              newStats[key] = (newStats[key]! + delta).clamp(0, maxVal);
+            }
+          });
+          updatedCharacter = updatedCharacter.copyWith(stats: newStats);
+        }
+      } catch (e) {
+        _log.warning('Error aplicando stats_updates: $e');
       }
 
       // 2. Inventory updates
-      if (msg.inventoryUpdates != null && msg.inventoryUpdates!.isNotEmpty) {
-        _log.info(
-          'Procesando ${msg.inventoryUpdates!.length} actualizaciones de inventario',
-        );
-        var newInventory = List<Item>.from(updatedCharacter.inventory);
-        for (final up in msg.inventoryUpdates!) {
-          if (up.action == 'add' && up.item != null) {
-            newInventory.add(up.item!);
-            _log.info('Objeto añadido: ${up.item!.name}');
-          } else if (up.action == 'remove' && up.itemId != null) {
-            newInventory.removeWhere((item) => item.id == up.itemId);
-            _log.info('Objeto eliminado: id=${up.itemId}');
+      try {
+        if (msg.inventoryUpdates != null && msg.inventoryUpdates!.isNotEmpty) {
+          _log.info(
+            'Procesando ${msg.inventoryUpdates!.length} actualizaciones de inventario',
+          );
+          var newInventory = List<Item>.from(updatedCharacter.inventory);
+          for (final up in msg.inventoryUpdates!) {
+            if (up.action == 'add' && up.item != null) {
+              newInventory.add(up.item!);
+              _log.info('Objeto añadido: ${up.item!.name}');
+            } else if (up.action == 'remove' && up.itemId != null) {
+              newInventory.removeWhere((item) => item.id == up.itemId);
+              _log.info('Objeto eliminado: id=${up.itemId}');
+            }
           }
+          updatedCharacter = updatedCharacter.copyWith(inventory: newInventory);
         }
-        updatedCharacter = updatedCharacter.copyWith(inventory: newInventory);
+      } catch (e) {
+        _log.warning('Error aplicando inventory_updates: $e');
       }
 
       // 3. Persist character if changed

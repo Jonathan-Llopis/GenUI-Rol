@@ -19,7 +19,8 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
   // Controla qué secciones están expandidas
   bool _statsExpanded = true;
   bool _resourcesExpanded = true;
-  bool _derivedExpanded = true;
+  bool _featuresExpanded = true;
+  bool _spellsExpanded = true;
   bool _inventoryExpanded = true;
   bool _backstoryExpanded = false;
 
@@ -49,7 +50,8 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
               children: [
                 _statsSection(character, system, cs),
                 _resourcesSection(character, system, cs),
-                _derivedSection(character, system, cs),
+                if (character.features.isNotEmpty) _featuresSection(character, cs),
+                if (character.spells.isNotEmpty) _spellsSection(character, cs),
                 _inventorySection(character, cs),
                 _backstorySection(character, cs),
               ],
@@ -63,9 +65,7 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
   // ── Atributos principales ──────────────────────────────────────────────────
 
   Widget _statsSection(Character c, RuleSystem system, ColorScheme cs) {
-    final attrs = system.statSchema.entries
-        .where((e) => e.value.type == StatType.attribute)
-        .toList();
+    final attrs = system.statSchema.entries.where((e) => e.value.type == StatType.attribute).toList();
     if (attrs.isEmpty) return const SizedBox.shrink();
 
     return _Section(
@@ -94,20 +94,11 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
   // ── Recursos (HP, SAN, MP…) ───────────────────────────────────────────────
 
   Widget _resourcesSection(Character c, RuleSystem system, ColorScheme cs) {
-    final resources = system.statSchema.entries
-        .where((e) => e.value.type == StatType.resource)
-        .toList();
+    final resources = system.statSchema.entries.where((e) => e.value.type == StatType.resource).toList();
     if (resources.isEmpty) return const SizedBox.shrink();
 
-    // Separar pares current/max (HP/MAX_HP, SAN/MAX_SAN…)
-    final maxKeys = resources
-        .map((e) => e.key)
-        .where((k) => k.startsWith('MAX_'))
-        .toSet();
-    final currentKeys = resources
-        .map((e) => e.key)
-        .where((k) => !k.startsWith('MAX_'))
-        .toList();
+    final maxKeys = resources.map((e) => e.key).where((k) => k.startsWith('MAX_')).toSet();
+    final currentKeys = resources.map((e) => e.key).where((k) => !k.startsWith('MAX_')).toList();
 
     return _Section(
       title: 'Recursos',
@@ -144,33 +135,32 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
     return Colors.grey.shade600;
   }
 
-  // ── Estadísticas derivadas ─────────────────────────────────────────────────
+  // ── Rasgos y Habilidades ───────────────────────────────────────────────────
 
-  Widget _derivedSection(Character c, RuleSystem system, ColorScheme cs) {
-    final derived = system.statSchema.entries
-        .where((e) => e.value.type == StatType.derived)
-        .toList();
-    if (derived.isEmpty) return const SizedBox.shrink();
-
+  Widget _featuresSection(Character c, ColorScheme cs) {
     return _Section(
-      title: 'Otros',
-      icon: Icons.auto_graph,
-      color: cs.tertiary,
-      expanded: _derivedExpanded,
-      onToggle: () => setState(() => _derivedExpanded = !_derivedExpanded),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: derived.map((e) {
-          final value = c.stats[e.key] ?? 0;
-          return _StatChip(
-            label: e.value.label,
-            shortKey: e.key,
-            value: value,
-            color: cs.tertiaryContainer,
-            textColor: cs.onTertiaryContainer,
-          );
-        }).toList(),
+      title: 'Rasgos y Habilidades',
+      icon: Icons.auto_awesome,
+      color: cs.secondary,
+      expanded: _featuresExpanded,
+      onToggle: () => setState(() => _featuresExpanded = !_featuresExpanded),
+      child: Column(
+        children: c.features.map((f) => _ListTileItem(title: f.name, subtitle: f.description)).toList(),
+      ),
+    );
+  }
+
+  // ── Hechizos ──────────────────────────────────────────────────────────────
+
+  Widget _spellsSection(Character c, ColorScheme cs) {
+    return _Section(
+      title: 'Hechizos Preparados',
+      icon: Icons.menu_book,
+      color: Colors.indigo.shade700,
+      expanded: _spellsExpanded,
+      onToggle: () => setState(() => _spellsExpanded = !_spellsExpanded),
+      child: Column(
+        children: c.spells.map((s) => _ListTileItem(title: s.name, subtitle: 'Nivel ${s.level} · ${s.description}')).toList(),
       ),
     );
   }
@@ -192,19 +182,14 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 'Sin objetos',
-                style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.5),
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5), fontSize: 13),
               ),
             )
           else
-            ...c.inventory.asMap().entries.map(
-              (entry) => _InventoryItem(
-                item: entry.value,
-                onRemove: () => _removeInventoryItem(c, entry.key),
-              ),
-            ),
+            ...c.inventory.asMap().entries.map((entry) => _InventoryItem(
+                  item: entry.value,
+                  onRemove: () => _removeInventoryItem(c, entry.key),
+                )),
           _AddItemField(
             controller: _itemController,
             onAdd: () => _addInventoryItem(c),
@@ -239,23 +224,48 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
   Widget _backstorySection(Character c, ColorScheme cs) {
     return _Section(
       title: 'Trasfondo',
-      icon: Icons.menu_book,
+      icon: Icons.history_edu,
       color: cs.secondary,
       expanded: _backstoryExpanded,
       onToggle: () => setState(() => _backstoryExpanded = !_backstoryExpanded),
       child: Text(
         c.backstory.isEmpty ? 'Sin trasfondo definido.' : c.backstory,
-        style: TextStyle(
-          fontSize: 13,
-          color: cs.onSurface.withValues(alpha: 0.85),
-          height: 1.5,
-        ),
+        style: TextStyle(fontSize: 13, color: cs.onSurface.withValues(alpha: 0.85), height: 1.5),
       ),
     );
   }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// ── Shared Widgets ────────────────────────────────────────────────────────────
+
+class _ListTileItem extends StatelessWidget {
+  const _ListTileItem({required this.title, required this.subtitle});
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(padding: EdgeInsets.only(top: 4), child: Icon(Icons.circle, size: 6)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _Header extends StatelessWidget {
   const _Header({required this.character, required this.system});
@@ -268,13 +278,11 @@ class _Header extends StatelessWidget {
     final subtitle = [
       character.characterClass,
       if (character.race != null && character.race!.isNotEmpty) character.race!,
-      if (character.occupation != null && character.occupation!.isNotEmpty)
-        character.occupation!,
+      if (character.occupation != null && character.occupation!.isNotEmpty) character.occupation!,
     ].join(' • ');
 
     return BlocBuilder<GameBloc, GameState>(
       builder: (context, state) {
-        // Usa el personaje actualizado del estado si está disponible
         final char = state is GameTurn ? state.character : character;
 
         return Container(
@@ -286,12 +294,7 @@ class _Header extends StatelessWidget {
               colors: [cs.primaryContainer, cs.secondaryContainer],
             ),
           ),
-          padding: EdgeInsets.fromLTRB(
-            16,
-            MediaQuery.of(context).padding.top + 16,
-            16,
-            20,
-          ),
+          padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 16, 16, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -323,9 +326,7 @@ class _Header extends StatelessWidget {
                             subtitle,
                             style: TextStyle(
                               fontSize: 12,
-                              color: cs.onPrimaryContainer.withValues(
-                                alpha: 0.7,
-                              ),
+                              color: cs.onPrimaryContainer.withValues(alpha: 0.7),
                             ),
                           ),
                         Text(
@@ -347,8 +348,6 @@ class _Header extends StatelessWidget {
     );
   }
 }
-
-// ── Section wrapper ────────────────────────────────────────────────────────────
 
 class _Section extends StatelessWidget {
   const _Section({
@@ -401,17 +400,15 @@ class _Section extends StatelessWidget {
           ),
         ),
         if (expanded)
-          Padding(padding: const EdgeInsets.only(bottom: 8), child: child),
-        Divider(
-          height: 1,
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
-        ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: child,
+          ),
+        Divider(height: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
       ],
     );
   }
 }
-
-// ── Stat chip ─────────────────────────────────────────────────────────────────
 
 class _StatChip extends StatelessWidget {
   const _StatChip({
@@ -461,8 +458,6 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-// ── Resource bar ─────────────────────────────────────────────────────────────
-
 class _ResourceBar extends StatelessWidget {
   const _ResourceBar({
     required this.label,
@@ -488,13 +483,7 @@ class _ResourceBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: cs.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
+            Text(label, style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.7))),
             Text(
               max != null ? '$current / $max' : '$current',
               style: TextStyle(
@@ -522,8 +511,6 @@ class _ResourceBar extends StatelessWidget {
   }
 }
 
-// ── Inventory item ────────────────────────────────────────────────────────────
-
 class _InventoryItem extends StatelessWidget {
   const _InventoryItem({required this.item, required this.onRemove});
   final Item item;
@@ -536,30 +523,21 @@ class _InventoryItem extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(
-            Icons.circle,
-            size: 6,
-            color: cs.onSurface.withValues(alpha: 0.4),
-          ),
+          Icon(Icons.circle, size: 6, color: cs.onSurface.withValues(alpha: 0.4)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(item.name, style: const TextStyle(fontSize: 13)),
           ),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(
-              Icons.remove_circle_outline,
-              size: 18,
-              color: cs.error.withValues(alpha: 0.7),
-            ),
+            child: Icon(Icons.remove_circle_outline,
+                size: 18, color: cs.error.withValues(alpha: 0.7)),
           ),
         ],
       ),
     );
   }
 }
-
-// ── Add item field ────────────────────────────────────────────────────────────
 
 class _AddItemField extends StatelessWidget {
   const _AddItemField({required this.controller, required this.onAdd});
@@ -577,20 +555,12 @@ class _AddItemField extends StatelessWidget {
             style: const TextStyle(fontSize: 13),
             decoration: InputDecoration(
               hintText: 'Añadir objeto...',
-              hintStyle: TextStyle(
-                fontSize: 13,
-                color: cs.onSurface.withValues(alpha: 0.4),
-              ),
+              hintStyle: TextStyle(fontSize: 13, color: cs.onSurface.withValues(alpha: 0.4)),
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: cs.outline.withValues(alpha: 0.5),
-                ),
+                borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.5)),
               ),
             ),
             onSubmitted: (_) => onAdd(),

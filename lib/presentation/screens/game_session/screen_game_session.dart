@@ -221,7 +221,10 @@ class _GameSessionViewState extends State<_GameSessionView> {
                     const Center(child: CircularProgressIndicator()),
                   GameCharacterView(character: s.character),
                   GameInventoryView(character: s.character),
-                  GameCombatView(combatState: s.combatState),
+                  GameCombatView(
+                    combatState: s.combatState,
+                    character: s.character,
+                  ),
                 ],
               ),
               _ => const Center(child: Text('Iniciando...')),
@@ -275,7 +278,7 @@ class _LoadingView extends StatelessWidget {
           Text(
             'El Dungeon Master está preparando la escena...',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],

@@ -104,7 +104,11 @@ class _StatsSection extends StatelessWidget {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          _AttributesGrid(entries: attributes, stats: character.stats),
+          _AttributesGrid(
+            entries: attributes,
+            stats: character.stats,
+            systemId: system.id,
+          ),
           const SizedBox(height: 16),
         ],
         if (resources.isNotEmpty) ...[
@@ -115,6 +119,7 @@ class _StatsSection extends StatelessWidget {
           const SizedBox(height: 8),
           ...resources.map(
             (e) => _ResourceRow(
+              keyName: e.key,
               definition: e.value,
               value: character.stats[e.key] ?? 0,
               maxValue: character.stats['MAX_${e.key}'] ?? e.value.max,
@@ -127,38 +132,77 @@ class _StatsSection extends StatelessWidget {
 }
 
 class _AttributesGrid extends StatelessWidget {
-  const _AttributesGrid({required this.entries, required this.stats});
+  const _AttributesGrid({
+    required this.entries,
+    required this.stats,
+    required this.systemId,
+  });
   final List<MapEntry<String, StatDefinition>> entries;
   final Map<String, int> stats;
+  final RuleSystemId systemId;
 
   @override
   Widget build(BuildContext context) {
+    final isCoc = systemId == RuleSystemId.callOfCthulhu7e;
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: 10,
+      runSpacing: 10,
       children: entries.map((e) {
         final val = stats[e.key] ?? 0;
+        
+        String subLabel = '';
+        if (isCoc) {
+          final half = val ~/ 2;
+          final fifth = val ~/ 5;
+          subLabel = '$half / $fifth';
+        } else {
+          final mod = (val - 10) >= 0 ? '+${(val - 10) ~/ 2}' : '${((val - 10) / 2).floor()}';
+          subLabel = mod;
+        }
+
         return Container(
-          width: 60,
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          width: isCoc ? 82 : 72,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 e.key,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
                 val.toString(),
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  subLabel,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
               ),
             ],
@@ -171,18 +215,21 @@ class _AttributesGrid extends StatelessWidget {
 
 class _ResourceRow extends StatelessWidget {
   const _ResourceRow({
+    required this.keyName,
     required this.definition,
     required this.value,
     required this.maxValue,
   });
+  final String keyName;
   final StatDefinition definition;
   final int value;
   final int maxValue;
 
   @override
   Widget build(BuildContext context) {
+    final isXp = keyName == 'XP';
     final pct = maxValue > 0 ? value / maxValue : 0.0;
-    final color = _getColor(pct);
+    final color = isXp ? Theme.of(context).colorScheme.primary : _getColor(pct);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -194,7 +241,7 @@ class _ResourceRow extends StatelessWidget {
             children: [
               Text(definition.label, style: const TextStyle(fontSize: 12)),
               Text(
-                '$value / $maxValue',
+                isXp ? '$value XP' : '$value / $maxValue',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -203,15 +250,17 @@ class _ResourceRow extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          LinearProgressIndicator(
-            value: pct,
-            backgroundColor: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 4,
-          ),
+          if (!isXp) ...[
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: pct,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 4,
+            ),
+          ],
         ],
       ),
     );

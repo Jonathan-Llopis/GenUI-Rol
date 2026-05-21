@@ -85,6 +85,7 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
             value: value,
             color: cs.primaryContainer,
             textColor: cs.onPrimaryContainer,
+            systemId: system.id,
           );
         }).toList(),
       ),
@@ -110,11 +111,14 @@ class _CharacterSheetDrawerState extends State<CharacterSheetDrawer> {
         children: currentKeys.map((key) {
           final maxKey = 'MAX_$key';
           final current = c.stats[key] ?? 0;
-          final max = maxKeys.contains(maxKey) ? (c.stats[maxKey] ?? 1) : null;
+          final max = maxKeys.contains(maxKey)
+              ? (c.stats[maxKey] ?? 1)
+              : system.statSchema[key]?.max;
           final label = system.statSchema[key]?.label ?? key;
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: _ResourceBar(
+              keyName: key,
               label: label,
               current: current,
               max: max,
@@ -417,6 +421,7 @@ class _StatChip extends StatelessWidget {
     required this.value,
     required this.color,
     required this.textColor,
+    required this.systemId,
   });
 
   final String label;
@@ -424,14 +429,28 @@ class _StatChip extends StatelessWidget {
   final int value;
   final Color color;
   final Color textColor;
+  final RuleSystemId systemId;
 
   @override
   Widget build(BuildContext context) {
+    final isCoc = systemId == RuleSystemId.callOfCthulhu7e;
+    
+    String subLabel = '';
+    if (isCoc) {
+      final half = value ~/ 2;
+      final fifth = value ~/ 5;
+      subLabel = '$half / $fifth';
+    } else {
+      final mod = (value - 10) >= 0 ? '+${(value - 10) ~/ 2}' : '${((value - 10) / 2).floor()}';
+      subLabel = mod;
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      width: isCoc ? 82 : 72,
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -439,7 +458,7 @@ class _StatChip extends StatelessWidget {
           Text(
             value.toString(),
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textColor,
             ),
@@ -447,9 +466,25 @@ class _StatChip extends StatelessWidget {
           Text(
             shortKey,
             style: TextStyle(
-              fontSize: 10,
-              color: textColor.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w500,
+              fontSize: 9,
+              color: textColor.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+            decoration: BoxDecoration(
+              color: textColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              subLabel,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
           ),
         ],
@@ -460,12 +495,14 @@ class _StatChip extends StatelessWidget {
 
 class _ResourceBar extends StatelessWidget {
   const _ResourceBar({
+    required this.keyName,
     required this.label,
     required this.current,
     this.max,
     required this.color,
   });
 
+  final String keyName;
   final String label;
   final int current;
   final int? max;
@@ -474,7 +511,8 @@ class _ResourceBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final hasBar = max != null && max! > 0;
+    final isXp = keyName == 'XP';
+    final hasBar = max != null && max! > 0 && !isXp;
     final ratio = hasBar ? (current / max!).clamp(0.0, 1.0) : 0.0;
 
     return Column(
@@ -485,7 +523,7 @@ class _ResourceBar extends StatelessWidget {
           children: [
             Text(label, style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.7))),
             Text(
-              max != null ? '$current / $max' : '$current',
+              isXp ? '$current XP' : (max != null ? '$current / $max' : '$current'),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

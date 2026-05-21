@@ -34,12 +34,18 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
 
   // Step 3: Atributos
   late Map<String, int> _stats;
-  int _availablePoints = 27; // D&D 5e Point Buy standard
+  late int _availablePoints;
 
   @override
   void initState() {
     super.initState();
+    _availablePoints = switch (widget.system.id) {
+      RuleSystemId.dnd5e => 27,
+      RuleSystemId.pathfinder2e => 9,
+      RuleSystemId.callOfCthulhu7e => 460,
+    };
     _stats = _initialStats();
+    _recalculatePoints();
   }
 
   Map<String, int> _initialStats() {
@@ -47,7 +53,11 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
     final Map<String, int> base = {};
     for (final e in schema.entries) {
       if (e.value.type == StatType.attribute) {
-        base[e.key] = 8; // Base for Point Buy
+        base[e.key] = switch (widget.system.id) {
+          RuleSystemId.dnd5e => 8,
+          RuleSystemId.pathfinder2e => 10,
+          RuleSystemId.callOfCthulhu7e => 15,
+        };
       } else {
         base[e.key] = _defaultValue(e.key, e.value);
       }
@@ -60,6 +70,9 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
       StatType.resource when key == 'HP' || key == 'MAX_HP' => 10,
       StatType.derived when key == 'LEVEL' => 1,
       StatType.derived when key == 'AC' => 10,
+      StatType.resource when key == 'SAN' || key == 'MAX_SAN' => 50,
+      StatType.resource when key == 'MP' => 10,
+      StatType.resource when key == 'LUCK' => 50,
       _ => 0,
     };
   }
@@ -75,6 +88,8 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
         } catch (_) {
           _dndRace = null;
         }
+      } else {
+        _recalculatePoints();
       }
     });
   }
@@ -90,14 +105,49 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
         } catch (_) {
           _dndClass = null;
         }
+      } else {
+        _updateHp();
       }
     });
   }
 
+  int _pf2eAncestryHp(String? race) {
+    if (race == null) return 8;
+    return switch (race.toLowerCase()) {
+      'elfo' || 'goblin' || 'mediano' => 6,
+      'enano' => 10,
+      'humano' || 'gnomo' || 'hobgoblin' || 'leshy' || 'orco' || 'catfolk' || 'kobold' || 'ratfolk' || 'tengu' || 'sprites' || 'fetchling' || 'fleshwarp' || 'grippli' => 8,
+      _ => 8,
+    };
+  }
+
+  int _pf2eClassHp(String? className) {
+    if (className == null) return 8;
+    return switch (className.toLowerCase()) {
+      'bárbaro' => 12,
+      'campeón' || 'guerrero' || 'monje' || 'explorador' => 10,
+      'mago' || 'hechicero' || 'bruja' || 'psíquico' || 'nigromante' || 'oráculo' => 6,
+      _ => 8,
+    };
+  }
+
   void _updateHp() {
-    if (_dndClass != null) {
-      final conMod = ((_stats['CON']! + (_dndRace?.statModifiers['CON'] ?? 0) - 10) ~/ 2);
-      _stats['HP'] = _dndClass!.hpAtLevel1 + conMod;
+    if (widget.system.id == RuleSystemId.dnd5e) {
+      if (_dndClass != null) {
+        final conMod = ((_stats['CON']! + (_dndRace?.statModifiers['CON'] ?? 0) - 10) ~/ 2);
+        _stats['HP'] = _dndClass!.hpAtLevel1 + conMod;
+        _stats['MAX_HP'] = _stats['HP']!;
+      }
+    } else if (widget.system.id == RuleSystemId.pathfinder2e) {
+      final ancestryHp = _pf2eAncestryHp(_selectedRace);
+      final classHp = _pf2eClassHp(_selectedClass);
+      final conMod = (_stats['CON']! - 10) ~/ 2;
+      _stats['HP'] = ancestryHp + classHp + conMod;
+      _stats['MAX_HP'] = _stats['HP']!;
+    } else if (widget.system.id == RuleSystemId.callOfCthulhu7e) {
+      final con = _stats['CON'] ?? 15;
+      final siz = _stats['SIZ'] ?? 15;
+      _stats['HP'] = (con + siz) ~/ 10;
       _stats['MAX_HP'] = _stats['HP']!;
     }
   }
@@ -106,14 +156,23 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
     int spent = 0;
     _stats.forEach((key, val) {
       if (widget.system.statSchema[key]?.type == StatType.attribute) {
-        spent += _pointCost(val);
+        spent += switch (widget.system.id) {
+          RuleSystemId.dnd5e => _pointCost(val),
+          RuleSystemId.pathfinder2e => (val - 10) ~/ 2,
+          RuleSystemId.callOfCthulhu7e => val - 15,
+        };
       }
     });
     setState(() {
-      _availablePoints = 27 - spent;
+      _availablePoints = (switch (widget.system.id) {
+        RuleSystemId.dnd5e => 27,
+        RuleSystemId.pathfinder2e => 9,
+        RuleSystemId.callOfCthulhu7e => 460,
+      }) - spent;
     });
     _updateHp();
     _updateAc();
+    _updateCoCResources();
   }
 
   int _pointCost(int score) {
@@ -124,12 +183,25 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
   }
 
   void _updateAc() {
-    final dexMod = ((_stats['DEX']! + (_dndRace?.statModifiers['DEX'] ?? 0) - 10) ~/ 2);
-    // Base AC 10 + DEX. In a real app we'd check armor/class features
-    _stats['AC'] = 10 + dexMod;
-    if (_dndClass?.id == 'barbaro') {
-      final conMod = ((_stats['CON']! + (_dndRace?.statModifiers['CON'] ?? 0) - 10) ~/ 2);
-      _stats['AC'] = 10 + dexMod + conMod;
+    if (widget.system.id == RuleSystemId.dnd5e) {
+      final dexMod = ((_stats['DEX']! + (_dndRace?.statModifiers['DEX'] ?? 0) - 10) ~/ 2);
+      _stats['AC'] = 10 + dexMod;
+      if (_dndClass?.id == 'barbaro') {
+        final conMod = ((_stats['CON']! + (_dndRace?.statModifiers['CON'] ?? 0) - 10) ~/ 2);
+        _stats['AC'] = 10 + dexMod + conMod;
+      }
+    } else if (widget.system.id == RuleSystemId.pathfinder2e) {
+      final dexMod = (_stats['DEX']! - 10) ~/ 2;
+      _stats['AC'] = 12 + dexMod;
+    }
+  }
+
+  void _updateCoCResources() {
+    if (widget.system.id == RuleSystemId.callOfCthulhu7e) {
+      final pow = _stats['POW'] ?? 15;
+      _stats['SAN'] = pow;
+      _stats['MAX_SAN'] = 99;
+      _stats['MP'] = pow ~/ 5;
     }
   }
 
@@ -243,15 +315,22 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
     return Column(
       children: [
         DropdownButtonFormField<String>(
-          value: _selectedRace,
-          decoration: const InputDecoration(labelText: 'Raza / Linaje', border: OutlineInputBorder()),
-          items: widget.system.races.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+          initialValue: _selectedRace,
+          decoration: InputDecoration(
+            labelText: widget.system.id == RuleSystemId.callOfCthulhu7e
+                ? 'Nacionalidad / Origen' 
+                : widget.system.raceLabel,
+            border: const OutlineInputBorder()
+          ),
+          items: widget.system.id == RuleSystemId.callOfCthulhu7e 
+              ? ['Estadounidense', 'Británico', 'Francés', 'Alemán', 'Español', 'Mexicano', 'Japonés', 'Otro'].map((r) => DropdownMenuItem(value: r, child: Text(r))).toList()
+              : widget.system.races.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
           onChanged: _onRaceSelected,
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedClass,
-          decoration: const InputDecoration(labelText: 'Clase / Profesión', border: OutlineInputBorder()),
+          initialValue: _selectedClass,
+          decoration: InputDecoration(labelText: widget.system.classLabel, border: const OutlineInputBorder()),
           items: widget.system.classes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
           onChanged: _onClassSelected,
         ),
@@ -265,6 +344,11 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
 
   Widget _StepAttributes() {
     final attrs = widget.system.statSchema.entries.where((e) => e.value.type == StatType.attribute).toList();
+    final pointLabel = switch (widget.system.id) {
+      RuleSystemId.dnd5e => 'Puntos Disponibles (Point Buy):',
+      RuleSystemId.pathfinder2e => 'Incrementos (Boosts) Disponibles:',
+      RuleSystemId.callOfCthulhu7e => 'Puntos Disponibles (Pool):',
+    };
     return Column(
       children: [
         Container(
@@ -273,7 +357,7 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Puntos Disponibles:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(pointLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
               Text('$_availablePoints', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _availablePoints < 0 ? Colors.red : null)),
             ],
           ),
@@ -282,23 +366,40 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
         ...attrs.map((e) {
           final val = _stats[e.key]!;
           final racialMod = _dndRace?.statModifiers[e.key] ?? 0;
+          
+          final bool canRemove = switch (widget.system.id) {
+            RuleSystemId.dnd5e => val > 8,
+            RuleSystemId.pathfinder2e => val > 10,
+            RuleSystemId.callOfCthulhu7e => val > 15,
+          };
+          
+          final bool canAdd = switch (widget.system.id) {
+            RuleSystemId.dnd5e => val < 15 && _availablePoints >= (val >= 13 ? 2 : 1),
+            RuleSystemId.pathfinder2e => val < 18 && _availablePoints >= 1,
+            RuleSystemId.callOfCthulhu7e => val < 90 && _availablePoints >= 5,
+          };
+          
+          final int step = switch (widget.system.id) {
+            RuleSystemId.dnd5e => 1,
+            RuleSystemId.pathfinder2e => 2,
+            RuleSystemId.callOfCthulhu7e => 5,
+          };
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
-                SizedBox(width: 80, child: Text(e.value.label)),
+                SizedBox(width: 100, child: Text(e.value.label)),
                 IconButton(
-                  onPressed: val > 8 ? () => setState(() { _stats[e.key] = val - 1; _recalculatePoints(); }) : null,
+                  onPressed: canRemove ? () => setState(() { _stats[e.key] = val - step; _recalculatePoints(); }) : null,
                   icon: const Icon(Icons.remove_circle_outline),
                 ),
                 Text('$val', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 IconButton(
-                  onPressed: val < 15 && _availablePoints >= (val >= 13 ? 2 : 1) 
-                    ? () => setState(() { _stats[e.key] = val + 1; _recalculatePoints(); }) 
-                    : null,
+                  onPressed: canAdd ? () => setState(() { _stats[e.key] = val + step; _recalculatePoints(); }) : null,
                   icon: const Icon(Icons.add_circle_outline),
                 ),
-                if (racialMod != 0) 
+                if (widget.system.id == RuleSystemId.dnd5e && racialMod != 0) 
                   Text('+$racialMod racial', style: const TextStyle(fontSize: 10, color: Colors.green)),
               ],
             ),
@@ -320,24 +421,44 @@ class _ScreenCharacterCreationState extends State<ScreenCharacterCreation> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(_nameCtrl.text, style: Theme.of(context).textTheme.headlineSmall),
-        Text('$_selectedRace ${_selectedClass}', style: const TextStyle(fontStyle: FontStyle.italic)),
+        Text('${_selectedRace ?? ""} · ${_selectedClass ?? ""}', style: const TextStyle(fontStyle: FontStyle.italic)),
         const Divider(),
         const Text('Estadísticas Finales:', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
+          runSpacing: 8,
           children: finalStats.entries.where((e) => widget.system.statSchema[e.key]?.type == StatType.attribute).map((e) {
-            final mod = (e.value - 10) ~/ 2;
-            return Chip(label: Text('${e.key}: ${e.value} (${mod >= 0 ? "+" : ""}$mod)'));
+            if (widget.system.id == RuleSystemId.callOfCthulhu7e) {
+              final half = e.value ~/ 2;
+              final fifth = e.value ~/ 5;
+              return Chip(label: Text('${e.key}: ${e.value} ($half/$fifth)'));
+            } else {
+              final mod = (e.value - 10) ~/ 2;
+              return Chip(label: Text('${e.key}: ${e.value} (${mod >= 0 ? "+" : ""}$mod)'));
+            }
           }).toList(),
         ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _DerivedStat(label: 'Puntos de Vida', value: '${_stats['HP']}', icon: Icons.favorite),
-            _DerivedStat(label: 'C. Armadura', value: '${_stats['AC']}', icon: Icons.shield),
-          ],
-        ),
+        const SizedBox(height: 16),
+        if (widget.system.id == RuleSystemId.callOfCthulhu7e) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _DerivedStat(label: 'Puntos de Vida', value: '${_stats['HP']}', icon: Icons.favorite),
+              _DerivedStat(label: 'Cordura', value: '${_stats['SAN']}', icon: Icons.psychology),
+              _DerivedStat(label: 'Puntos de Magia', value: '${_stats['MP']}', icon: Icons.auto_awesome),
+              _DerivedStat(label: 'Suerte', value: '${_stats['LUCK']}', icon: Icons.casino),
+            ],
+          ),
+        ] else ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _DerivedStat(label: 'Puntos de Vida', value: '${_stats['HP']}', icon: Icons.favorite),
+              _DerivedStat(label: 'C. Armadura', value: '${_stats['AC']}', icon: Icons.shield),
+            ],
+          ),
+        ],
       ],
     );
   }

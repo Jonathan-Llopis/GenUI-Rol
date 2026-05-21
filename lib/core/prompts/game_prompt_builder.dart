@@ -11,11 +11,11 @@ String buildSystemPrompt({
   final characterDesc = _describeCharacter(character, system);
   final systemContext = _systemContext(system, languageCode);
   final mechanics = isCompact
-      ? _compactMechanics(languageCode)
+      ? _compactMechanics(system, languageCode)
       : _mechanicsInstructions(system, languageCode);
   final outputFormat = isCompact
-      ? _compactOutputFormat(languageCode)
-      : _outputFormatInstructions(languageCode);
+      ? _compactOutputFormat(system, languageCode)
+      : _outputFormatInstructions(system, languageCode);
 
   return '''$systemContext
 
@@ -26,48 +26,89 @@ $mechanics
 $outputFormat''';
 }
 
-String _compactMechanics(String languageCode) {
-  return switch (languageCode) {
-    'es' || 'ca' => '''MECÁNICAS SIMPLES:
-- Indica tiradas y resultados. Simula los dados.
-- Actualiza estadísticas (daño, cura, etc.).
-- Añade/quita objetos al inventario según la historia.
-- Mantén la narración fluida y las consecuencias claras.''',
-    _ => '''SIMPLE MECHANICS:
-- State rolls and results. Simulate dice.
-- Update stats (damage, heal, etc.).
-- Add/remove inventory items based on the story.
-- Keep narration fluid and consequences clear.''',
-  };
+String _compactMechanics(RuleSystem system, String languageCode) {
+  final isSpanishOrCatalan = languageCode == 'es' || languageCode == 'ca';
+  
+  switch (system.id) {
+    case RuleSystemId.dnd5e:
+      return isSpanishOrCatalan ? '''MECÁNICAS D&D 5e COMPACTAS:
+- Tiradas con d20 + modificador contra Clase de Dificultad (CD 5-30).
+- Aplica Ventaja (tira dos d20, quédate el mayor) o Desventaja (quédate el menor) si corresponde.
+- Actualiza "HP" ante daño/curas. A 0 HP, inconsciencia y salvaciones contra la muerte (no muerte instantánea).
+- Indica tiradas ficticias con su resultado y ajusta la historia en consecuencia.''' : '''COMPACT D&D 5e MECHANICS:
+- Rolls: d20 + modifier against Difficulty Class (DC 5-30).
+- Apply Advantage (roll two d20, take highest) or Disadvantage (take lowest) when appropriate.
+- Update "HP" for damage/healing. At 0 HP, unconsciousness and death saves (no instant death).
+- Describe fictional rolls with their results and adapt the story accordingly.''';
+
+    case RuleSystemId.pathfinder2e:
+      return isSpanishOrCatalan ? '''MECÁNICAS PATHFINDER 2e COMPACTAS:
+- 4 Grados de Éxito: Éxito Crítico (supera CD por 10+ o natural 20), Éxito (cumple CD), Fallo (bajo CD), Fallo Crítico (falla por 10+ o natural 1).
+- Economía de combate: Combates estructurados en turnos con presupuesto de 3 acciones (Atacar, Moverse, Escudo, Hechizo).
+- Puntos de Héroe: El jugador puede gastar "HERO_POINTS" para repetir una tirada fallida.
+- Actualiza "HP" y "HERO_POINTS" en character_updates.''' : '''COMPACT PATHFINDER 2e MECHANICS:
+- 4 Degrees of Success: Critical Success (exceeds DC by 10+ or natural 20), Success (meets DC), Failure (below DC), Critical Failure (fails by 10+ or natural 1).
+- Action Economy: Combat is turn-based with 3 actions per turn (Stride, Strike, Shield, Spell).
+- Hero Points: The player can spend "HERO_POINTS" to reroll a failed check.
+- Update "HP" and "HERO_POINTS" in character_updates.''';
+
+    case RuleSystemId.callOfCthulhu7e:
+      return isSpanishOrCatalan ? '''MECÁNICAS LA LLAMADA DE CTHULHU 7e COMPACTAS:
+- Tiradas d100 contra Atributos (Normal <= Valor, Difícil <= 1/2, Extrema <= 1/5).
+- Tiradas Forzadas (Pushed): Si falla una tirada (no de combate), el jugador puede reintentarla. Si falla el push, la consecuencia es catastrófica.
+- Cordura (SAN): Tiradas d100 de SAN. Éxito: sin pérdida o 1 punto. Fallo: pérdida grave (ej: 1d6/1d10).
+- Locura Temporal: Si pierde 5 o más puntos de SAN en un solo turno, entra en Locura Temporal (delirios, pánico, fobias). Nárralo e intégralo.
+- Actualiza "HP", "SAN", "MP", "LUCK" en character_updates.''' : '''COMPACT CALL OF CTHULHU 7e MECHANICS:
+- Rolls: d100 against Attributes (Regular <= Value, Hard <= 1/2 Value, Extreme <= 1/5 Value).
+- Pushed Rolls: If a non-combat roll fails, the player can push it. If the pushed roll fails, the consequence is catastrophic!
+- Sanity (SAN): Roll d100 vs SAN. Success: 0 or minor loss. Failure: major loss (e.g., 1d6/1d10).
+- Temporary Insanity: Losing 5+ SAN in a single scene triggers Temporary Insanity (fears, delusions). Narrate this and present adapted choices.
+- Update "HP", "SAN", "MP", "LUCK" in character_updates.''';
+  }
 }
 
-String _compactOutputFormat(String languageCode) {
+String _compactOutputFormat(RuleSystem system, String languageCode) {
+  final isSpanishOrCatalan = languageCode == 'es' || languageCode == 'ca';
   const validTypes = 'weapon, armor, consumable, tool, quest, misc';
-  return switch (languageCode) {
-    'es' || 'ca' => '''RESPONDE SOLO CON JSON:
+  
+  final characterUpdatesExample = switch (system.id) {
+    RuleSystemId.dnd5e => '{"HP": -5, "XP": 100}',
+    RuleSystemId.pathfinder2e => '{"HP": -8, "HERO_POINTS": -1}',
+    RuleSystemId.callOfCthulhu7e => '{"HP": -2, "SAN": -5, "MP": -1, "LUCK": -5}',
+  };
+
+  final allowedStats = switch (system.id) {
+    RuleSystemId.dnd5e => '"HP", "XP", "LEVEL"',
+    RuleSystemId.pathfinder2e => '"HP", "HERO_POINTS", "LEVEL"',
+    RuleSystemId.callOfCthulhu7e => '"HP", "SAN", "MP", "LUCK"',
+  };
+
+  return isSpanishOrCatalan ? '''RESPONDE SOLO CON JSON VÁLIDO:
 {
-  "story": "Tu narración.",
+  "story": "Tu narración en Markdown.",
   "choices": ["Opción 1", "Opción 2"],
-  "image_prompt": "RPG scene description",
-  "character_updates": {"HP": -2},
+  "image_prompt": "RPG scene description in English",
+  "character_updates": $characterUpdatesExample,
   "inventory_updates": [
     {"action": "add", "item": {"id": "item1", "name": "Espada", "description": "...", "type": "weapon", "weight": 2.0}},
     {"action": "remove", "id": "item_id_to_remove"}
   ]
 }
-IMPORTANTE: Tipos de objeto válidos: $validTypes. El campo action debe ser "add" o "remove".''',
-    _ => '''RESPOND ONLY WITH JSON:
+IMPORTANTE:
+- Stats permitidos en character_updates: $allowedStats.
+- Tipos de objeto válidos: $validTypes. El campo action debe ser "add" o "remove".''' : '''RESPOND ONLY WITH VALID JSON:
 {
-  "story": "Your narration.",
+  "story": "Your markdown narration.",
   "choices": ["Choice 1", "Choice 2"],
-  "image_prompt": "RPG scene description",
-  "character_updates": {"HP": -2},
+  "image_prompt": "RPG scene description in English",
+  "character_updates": $characterUpdatesExample,
   "inventory_updates": [
     {"action": "add", "item": {"id": "id1", "name": "Item Name", "description": "...", "type": "misc", "weight": 0.5}}
   ]
 }
-IMPORTANT: Valid item types: $validTypes. Action field must be "add" or "remove".''',
-  };
+IMPORTANT:
+- Allowed stats in character_updates: $allowedStats.
+- Valid item types: $validTypes. Action field must be "add" or "remove".''';
 }
 
 String _describeCharacter(Character character, RuleSystem system) {
@@ -95,7 +136,7 @@ String _describeCharacter(Character character, RuleSystem system) {
 
   return '''PERSONAJE DEL JUGADOR:
   Nombre: ${character.name}
-  Clase/Ocupación: ${character.characterClass}${character.race != null ? '\n  Raza: ${character.race}' : ''}${character.occupation != null ? '\n  Ocupación: ${character.occupation}' : ''}
+  Clase/Ocupación: ${character.characterClass}${character.race != null ? '\n  Raza/Origen: ${character.race}' : ''}${character.occupation != null ? '\n  Ocupación: ${character.occupation}' : ''}
   Trasfondo: ${character.backstory}
   
   ESTADÍSTICAS ACTUALES:
@@ -172,27 +213,78 @@ Monsters are incomprehensible entities - direct combat is usually fatal. Investi
 }
 
 String _mechanicsInstructions(RuleSystem system, String languageCode) {
-  return switch (languageCode) {
-    'es' || 'ca' => '''MECÁNICAS DE JUEGO:
-- Cuando el jugador intente una acción con riesgo, indica qué tirada se requiere y el resultado.
-- Simula las tiradas tú mismo con resultados dramáticamente apropiados.
-- Actualiza las estadísticas del personaje cuando corresponda (daño recibido, cordura perdida, XP ganada, etc.).
-- Gestiona el inventario: añade objetos cuando el jugador los encuentre o quítalos si los pierde/consume.
-- Inicia o finaliza combates según la narrativa. En combate, describe la iniciativa y los turnos de forma ágil.
-- Incluye siempre consecuencias reales de las decisiones del jugador.''',
-    _ => '''GAME MECHANICS:
-- When the player attempts a risky action, indicate what roll is required and the result.
-- Simulate dice rolls yourself with dramatically appropriate results.
-- Update character stats when appropriate (damage taken, sanity lost, XP gained, etc.).
-- Manage inventory: add items when found or remove them when lost/consumed.
-- Start or end combat based on the narrative. In combat, describe initiative and turns concisely.
-- Always include real consequences for the player's decisions.''',
-  };
+  final isSpanishOrCatalan = languageCode == 'es' || languageCode == 'ca';
+  
+  switch (system.id) {
+    case RuleSystemId.dnd5e:
+      return isSpanishOrCatalan ? '''MECÁNICAS DE JUEGO (D&D 5e):
+- Cuando el jugador intente una acción con riesgo, indica qué tirada de característica o salvación d20 se requiere y describe su resultado narrativo.
+- Simula las tiradas tú mismo. Aplica ventaja y desventaja según la situación táctica o ambiental.
+- Escala de dificultad de CD estándar: Muy Fácil (5), Fácil (10), Moderada (15), Difícil (20), Muy Difícil (25), Casi Imposible (30).
+- Actualiza los Puntos de Vida ("HP") en los character_updates. Si el jugador cae a 0 HP, entra en estado de inconsciencia y empieza a realizar salvaciones de muerte; describe esto dramáticamente.
+- Gestiona el inventario de forma activa (añadiendo armas, armaduras o consumibles encontrados, o retirando recursos gastados).''' : '''GAME MECHANICS (D&D 5e):
+- When the player attempts a risky action, state which d20 attribute check or saving throw is required and describe the narrative result.
+- Simulate the rolls yourself. Apply advantage and disadvantage based on tactical or environmental circumstances.
+- Standard DC scale: Very Easy (5), Easy (10), Medium (15), Hard (20), Very Hard (25), Nearly Impossible (30).
+- Update Hit Points ("HP") in character_updates. If the player drops to 0 HP, they fall unconscious and start making death saves; describe this dramatically.
+- Actively manage inventory (adding found weapons, armor, or consumables, or removing spent resources).''';
+
+    case RuleSystemId.pathfinder2e:
+      return isSpanishOrCatalan ? '''MECÁNICAS DE JUEGO (Pathfinder 2e):
+- Aplica estrictamente los 4 Grados de Éxito en todas las tiradas d20 contra la CD:
+  * Éxito Crítico: El resultado es CD + 10 o más, o un 20 natural que supera la CD. Otorga un beneficio espectacular.
+  * Éxito: El resultado iguala o supera la CD. La acción funciona de forma normal.
+  * Fallo: El resultado es menor que la CD. La acción no tiene efecto o tiene un contratiempo leve.
+  * Fallo Crítico: El resultado es CD - 10 o menos, o un 1 natural que falla la CD. Causa consecuencias graves u obstáculos tácticos.
+- Combate de 3 Acciones: En situaciones tácticas de combate, describe la acción indicando que cada personaje tiene un presupuesto de 3 acciones (Moverse, Atacar, Defenderse con Escudo, Lanzar Hechizo de 2 acciones).
+- Puntos de Héroe: El jugador inicia con un punto. Permítele gastar 1 Punto de Héroe ("HERO_POINTS" en character_updates) para repetir una tirada d20 fallida.''' : '''GAME MECHANICS (Pathfinder 2e):
+- Strictly apply the 4 Degrees of Success on all d20 checks against the DC:
+  * Critical Success: Result is DC + 10 or more, or a natural 20 that succeeds. Grants an extra spectacular benefit.
+  * Success: Result meets or exceeds the DC. The action works as intended.
+  * Failure: Result is below the DC. The action fails or has a minor setback.
+  * Critical Failure: Result is DC - 10 or less, or a natural 1 that fails. Causes severe consequences or tactical obstacles.
+  * Turn-based Combat (3 Actions): In combat, describe turns recognizing that characters have a budget of 3 actions (e.g. Stride, Strike, Raise Shield, cast a 2-action Spell).
+  * Hero Points: The player starts with hero points. Allow them to spend 1 Hero Point ("HERO_POINTS" in character_updates) to reroll a failed d20 check.''';
+
+    case RuleSystemId.callOfCthulhu7e:
+      return isSpanishOrCatalan ? '''MECÁNICAS DE JUEGO (La Llamada de Cthulhu 7e):
+- Sistema de Percentiles (d100): Las tiradas se realizan con d100 contra el valor de una característica o habilidad del investigador.
+  * Éxito Normal: d100 <= valor.
+  * Éxito Difícil: d100 <= la mitad (1/2) del valor. Necesario para tareas complejas.
+  * Éxito Extremo: d100 <= la quinta parte (1/5) del valor. Necesario para hazañas heroicas o contra peligros mortales.
+  * Fallo / Pifia: d100 > valor (Pifia es 96-100).
+- Tiradas Forzadas (Pushed Rolls): Si una tirada ordinaria (no de combate) falla, puedes sugerir o permitir que el jugador "fuerce" la tirada justificándolo en su acción. Advierte que si falla una tirada forzada, el desastre o consecuencia será inmediato y catastrófico.
+- Tiradas de Cordura (SAN): Al presenciar un hecho perturbador, mutilación o criatura de los Mitos, exige una tirada de d100 vs "SAN". Si tiene éxito, no pierde SAN o pierde un valor mínimo (ej: 0 o 1). Si falla, pierde una cantidad significativa (ej: 1d4, 1d6, 1d10 o 1d20).
+- Locura Temporal: Si el investigador pierde 5 o más puntos de SAN en una sola escena, sufre Locura Temporal. Describe un brote de locura inmediato (amnesia, pánico, alucinación o fobia) e incluye opciones de comportamiento errático en "choices".
+- Suerte (LUCK): El jugador puede gastar puntos de Suerte ("LUCK" en character_updates) para corregir y superar fallos en tiradas de d100, reduciendo su Suerte en la misma cantidad.''' : '''GAME MECHANICS (Call of Cthulhu 7th Edition):
+- Percentile System (d100): Rolls are made with d100 against the value of an attribute or skill:
+  * Regular Success: d100 <= value.
+  * Hard Success: d100 <= half (1/2) of the value. Required for complex tasks.
+  * Extreme Success: d100 <= one-fifth (1/5) of the value. Required for near-impossible feats.
+  * Failure / Fumble: d100 > value (Fumble is 96-100).
+- Pushed Rolls: If a regular non-combat roll fails, the player can "push" the roll by describing extra effort. If a pushed roll fails, the consequence must be catastrophic!
+- Sanity (SAN) Checks: When witnessing a disturbing event or creature, prompt a d100 check vs "SAN". Success: 0 or minimal SAN loss. Failure: severe SAN loss (e.g. 1d4, 1d6, 1d10, 1d20).
+- Temporary Insanity: If the investigator loses 5 or more SAN in a single scene, they suffer Temporary Insanity. Immediately describe a bout of madness (hallucinations, panic, phobias) and adjust choices accordingly.
+- Luck (LUCK): The player can spend Luck points ("LUCK" in character_updates) to improve a d100 roll, reducing their Luck by the same amount.''';
+  }
 }
 
-String _outputFormatInstructions(String languageCode) {
-  return switch (languageCode) {
-    'es' || 'ca' => '''FORMATO DE RESPUESTA OBLIGATORIO:
+String _outputFormatInstructions(RuleSystem system, String languageCode) {
+  final isSpanishOrCatalan = languageCode == 'es' || languageCode == 'ca';
+  
+  final characterUpdatesExample = switch (system.id) {
+    RuleSystemId.dnd5e => '{"HP": -5, "XP": 150}',
+    RuleSystemId.pathfinder2e => '{"HP": -6, "HERO_POINTS": 1}',
+    RuleSystemId.callOfCthulhu7e => '{"HP": -1, "SAN": -6, "MP": -2}',
+  };
+
+  final allowedStats = switch (system.id) {
+    RuleSystemId.dnd5e => '"HP", "XP", "LEVEL"',
+    RuleSystemId.pathfinder2e => '"HP", "HERO_POINTS", "LEVEL"',
+    RuleSystemId.callOfCthulhu7e => '"HP", "SAN", "MP", "LUCK"',
+  };
+
+  return isSpanishOrCatalan ? '''FORMATO DE RESPUESTA OBLIGATORIO:
 Debes responder SIEMPRE con un JSON válido con esta estructura exacta:
 {
   "story": "Narración de la escena en markdown (2-4 párrafos). Usa **negrita** para énfasis.",
@@ -202,7 +294,7 @@ Debes responder SIEMPRE con un JSON válido con esta estructura exacta:
     "Opción 3: descripción de la acción"
   ],
   "image_prompt": "Descripción en inglés para generar imagen de la escena (máximo 100 palabras)",
-  "character_updates": {"HP": -5},
+  "character_updates": $characterUpdatesExample,
   "inventory_updates": [
     {"action": "add", "item": {"id": "unique_id", "name": "Nombre", "description": "...", "type": "weapon|armor|consumable|tool|quest|misc", "weight": 1.0, "stats": {"damage": 5}}},
     {"action": "remove", "id": "unique_id"}
@@ -214,21 +306,25 @@ Debes responder SIEMPRE con un JSON válido con esta estructura exacta:
   "session_title": "Título corto o null"
 }
 
-inventory_updates y combat solo se incluyen si hay cambios. character_updates solo incluye stats que cambian.''',
-    _ => '''MANDATORY RESPONSE FORMAT:
+IMPORTANTE:
+- character_updates: Solo incluye las estadísticas que cambian de verdad. Estadísticas permitidas para este sistema de juego: $allowedStats.
+- inventory_updates y combat solo se incluyen si hay cambios reales.''' : '''MANDATORY RESPONSE FORMAT:
 You MUST always respond with valid JSON using this exact structure:
 {
   "story": "Scene narration in markdown.",
   "choices": ["Choice 1", "Choice 2", "Choice 3"],
   "image_prompt": "English description for image generation.",
-  "character_updates": {"HP": -5},
+  "character_updates": $characterUpdatesExample,
   "inventory_updates": [
-    {"action": "add", "item": {"id": "unique_id", "name": "...", "description": "...", "type": "weapon|...", "weight": 1.0}}
+    {"action": "add", "item": {"id": "unique_id", "name": "...", "description": "...", "type": "weapon|armor|consumable|tool|quest|misc", "weight": 1.0}}
   ],
   "combat": {"active": true, "enemies": []},
   "session_title": "..."
-}''',
-  };
+}
+
+IMPORTANT:
+- character_updates: Only include actual stat changes. Allowed stats for this system: $allowedStats.
+- inventory_updates and combat should only be included if there are actual changes.''';
 }
 
 /// Builds the initial "start game" message prompt.

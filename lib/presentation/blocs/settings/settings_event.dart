@@ -16,11 +16,4 @@ class UpdateLocalModel extends SettingsEvent {
   List<Object?> get props => [path, name];
 }
 
-class UpdateOllamaUrl extends SettingsEvent {
-  const UpdateOllamaUrl(this.url);
-  final String url;
-  @override
-  List<Object?> get props => [url];
-}
-
 class CompleteOnboarding extends SettingsEvent {}

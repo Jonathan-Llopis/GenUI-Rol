@@ -22,16 +22,16 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   final List<Map<String, String>> _recommendedModels = [
     {
-      'name': 'Qwen 2.5 1.5B (Recomendado)',
-      'url': 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
-      'fileName': 'qwen2.5-1.5b-q4_k_m.gguf',
-      'size': '1.1 GB',
+      'name': 'Gemma 4 E4B (Recomendado)',
+      'url': 'https://huggingface.co/bartowski/google_gemma-4-E4B-it-GGUF/resolve/main/google_gemma-4-E4B-it-Q4_K_M.gguf',
+      'fileName': 'google_gemma-4-E4B-it-Q4_K_M.gguf',
+      'size': '2.8 GB',
     },
     {
-      'name': 'Gemma 2 2B',
-      'url': 'https://huggingface.co/google/gemma-2-2b-it-GGUF/resolve/main/gemma-2-2b-it-Q4_K_M.gguf',
-      'fileName': 'gemma-2-2b-q4_k_m.gguf',
-      'size': '1.6 GB',
+      'name': 'Gemma 4 E2B',
+      'url': 'https://huggingface.co/bartowski/google_gemma-4-E2B-it-GGUF/resolve/main/google_gemma-4-E2B-it-Q4_K_M.gguf',
+      'fileName': 'google_gemma-4-E2B-it-Q4_K_M.gguf',
+      'size': '1.5 GB',
     },
   ];
 

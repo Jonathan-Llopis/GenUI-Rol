@@ -125,7 +125,7 @@ class LocalGameDataSourceImpl implements GameRemoteDataSource {
       languageCode: languageCode,
     );
 
-    _history = '<|im_start|>system\n$systemPrompt<|im_end|>\n<|im_start|>user\n$startPrompt<|im_end|>\n<|im_start|>assistant\n';
+    _history = '<start_of_turn>user\n$systemPrompt\n\n$startPrompt<end_of_turn>\n<start_of_turn>model\n';
     return _generateAndParse();
   }
 
@@ -136,7 +136,7 @@ class LocalGameDataSourceImpl implements GameRemoteDataSource {
   }) async {
     await _initEngine();
     final prompt = buildChoicePrompt(choice: choice, languageCode: languageCode);
-    _history += '<|im_start|>user\n$prompt<|im_end|>\n<|im_start|>assistant\n';
+    _history += '<start_of_turn>user\n$prompt<end_of_turn>\n<start_of_turn>model\n';
     return _generateAndParse();
   }
 
@@ -147,7 +147,7 @@ class LocalGameDataSourceImpl implements GameRemoteDataSource {
       await for (final token in _engine!.generate(_history)) {
         responseText += token;
       }
-      _history += '$responseText<|im_end|>\n';
+      _history += '$responseText<end_of_turn>\n';
       return _parseStoryResponse(responseText);
     } catch (e, st) {
       _gameLog.severe('Error en la inferencia local', e, st);

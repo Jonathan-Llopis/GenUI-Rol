@@ -102,10 +102,23 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           final updates = msg.characterUpdates!;
           _log.fine('Aplicando actualizaciones de estadísticas: $updates');
           final newStats = Map<String, int>.from(updatedCharacter.stats);
-          updates.forEach((key, delta) {
+          updates.forEach((rawKey, delta) {
+            final key = rawKey.toUpperCase();
             if (newStats.containsKey(key)) {
               final maxKey = 'MAX_$key';
-              final maxVal = newStats[maxKey] ?? newStats[key]!;
+              int maxVal = 999999;
+              if (newStats.containsKey(maxKey)) {
+                maxVal = newStats[maxKey]!;
+              } else {
+                maxVal = switch (key) {
+                  'HERO_POINTS' => 3,
+                  'LUCK' => 100,
+                  'MP' => ((newStats['POW'] ?? 50) ~/ 5),
+                  'HP' => (newStats['MAX_HP'] ?? 999),
+                  'SAN' => (newStats['MAX_SAN'] ?? 99),
+                  _ => 999999,
+                };
+              }
               newStats[key] = (newStats[key]! + delta).clamp(0, maxVal);
             }
           });

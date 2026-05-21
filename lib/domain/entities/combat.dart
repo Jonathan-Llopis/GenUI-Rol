@@ -1,21 +1,36 @@
 import 'package:equatable/equatable.dart';
 
 class CombatEnemy extends Equatable {
-  const CombatEnemy({required this.name, required this.hp, required this.ac});
+  const CombatEnemy({
+    required this.name,
+    required this.hp,
+    required this.ac,
+    this.maxHp,
+  });
   final String name;
   final int hp;
   final int ac;
+  final int? maxHp;
 
   @override
-  List<Object?> get props => [name, hp, ac];
+  List<Object?> get props => [name, hp, ac, maxHp];
 
-  factory CombatEnemy.fromJson(Map<String, dynamic> json) => CombatEnemy(
-    name: json['name'] as String,
-    hp: json['hp'] as int,
-    ac: json['ac'] as int,
-  );
+  factory CombatEnemy.fromJson(Map<String, dynamic> json) {
+    final hpVal = json['hp'] as int;
+    return CombatEnemy(
+      name: json['name'] as String,
+      hp: hpVal,
+      ac: json['ac'] as int,
+      maxHp: json['max_hp'] as int? ?? hpVal,
+    );
+  }
 
-  Map<String, dynamic> toJson() => {'name': name, 'hp': hp, 'ac': ac};
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'hp': hp,
+        'ac': ac,
+        'max_hp': maxHp ?? hp,
+      };
 }
 
 class CombatState extends Equatable {

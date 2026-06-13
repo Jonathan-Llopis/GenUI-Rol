@@ -22,16 +22,16 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   final List<Map<String, String>> _recommendedModels = [
     {
-      'name': 'Gemma 4 E4B (Recomendado)',
-      'url': 'https://huggingface.co/bartowski/google_gemma-4-E4B-it-GGUF/resolve/main/google_gemma-4-E4B-it-Q4_K_M.gguf',
-      'fileName': 'google_gemma-4-E4B-it-Q4_K_M.gguf',
-      'size': '2.8 GB',
+      'name': 'Gemma 4 E2B-it (LiteRT-LM, Recomendado)',
+      'url': 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm',
+      'fileName': 'gemma-4-E2B-it.litertlm',
+      'size': '2.6 GB',
     },
     {
-      'name': 'Gemma 4 E2B',
-      'url': 'https://huggingface.co/bartowski/google_gemma-4-E2B-it-GGUF/resolve/main/google_gemma-4-E2B-it-Q4_K_M.gguf',
-      'fileName': 'google_gemma-4-E2B-it-Q4_K_M.gguf',
-      'size': '1.5 GB',
+      'name': 'Gemma 3 1B IT (LiteRT-LM, Más Ligero)',
+      'url': 'https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/Gemma3-1B-IT_multi-prefill-seq_q4_ekv4096.litertlm',
+      'fileName': 'Gemma3-1B-IT.litertlm',
+      'size': '0.9 GB',
     },
   ];
 
@@ -100,7 +100,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             Icon(Icons.vibration, size: 48, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
             const Text(
-              'Usando Motor Local (Llama.cpp)',
+              'Usando Motor Local (MediaPipe Gemma)',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),

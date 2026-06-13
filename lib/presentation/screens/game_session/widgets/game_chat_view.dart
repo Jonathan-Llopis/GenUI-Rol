@@ -41,35 +41,28 @@ class GameChatView extends StatefulWidget {
 }
 
 class _GameChatViewState extends State<GameChatView> {
-  late final PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
+  bool _isChoicesExpanded = false;
 
   @override
   void didUpdateWidget(GameChatView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If a new turn was added, scroll to the end
+    // If a new turn was added, collapse choices panel so it starts hidden
     if (widget.state.messages.length > oldWidget.state.messages.length) {
+      _isChoicesExpanded = false;
+    }
+    // If a new turn was added, or we started/stopped waiting for AI, auto-scroll to the bottom
+    if (widget.state.messages.length > oldWidget.state.messages.length ||
+        widget.state.isWaitingForAi != oldWidget.state.isWaitingForAi) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_pageController.hasClients) {
-          _pageController.animateToPage(
-            _getPages().length - 1,
+        if (widget.scrollController.hasClients) {
+          widget.scrollController.animateTo(
+            widget.scrollController.position.maxScrollExtent,
             duration: const Duration(milliseconds: 600),
             curve: Curves.easeOutCubic,
           );
         }
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   List<GameTurnPage> _getPages() {
@@ -109,101 +102,200 @@ class _GameChatViewState extends State<GameChatView> {
   Widget build(BuildContext context) {
     final pages = _getPages();
 
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: pages.length,
+        Positioned.fill(
+          child: ListView.builder(
+            controller: widget.scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            itemCount: pages.length + 2, // Header (Scene image) + Pages + Spacing spacer at bottom
             itemBuilder: (context, index) {
-              final page = pages[index];
-              return _ChatPage(
-                page: page,
-                imageBytes: page.isLast ? widget.state.sceneImageBytes : null,
-                isGeneratingImage: page.isLast && widget.state.isGeneratingImage,
-                genUiManager: widget.genUiManager,
-                genUiConversation: widget.genUiConversation,
+              if (index == 0) {
+                // Header scene cover image
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: _SceneImageWidget(
+                    imageBytes: widget.state.sceneImageBytes,
+                    isLoading: widget.state.isGeneratingImage,
+                  ),
+                );
+              } else if (index == pages.length + 1) {
+                // Bottom spacing spacer so text can scroll above the choices panel
+                final spacing = widget.state.currentChoices.isNotEmpty 
+                    ? (_isChoicesExpanded ? 400.0 : 100.0) 
+                    : 100.0;
+                return SizedBox(height: spacing);
+              }
+
+              final pageIndex = index - 1;
+              final page = pages[pageIndex];
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Player Action Bubble
+                  if (page.playerAction != null)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 48, bottom: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.7),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(4),
+                          ),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'TÚ',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              page.playerAction!,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // Narrator Response Card
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'NARRADOR',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.auto_awesome,
+                              size: 10,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        MarkdownBody(
+                          data: page.narratorText,
+                          styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                            p: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  height: 1.6,
+                                  fontSize: 14.5,
+                                ),
+                          ),
+                        ),
+                        if (page.isLast) ...[
+                          const SizedBox(height: 12),
+                          GenUiSurface(
+                            surfaceId: 'active_game_surface',
+                            host: widget.genUiConversation.host,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               );
             },
           ),
         ),
-        if (widget.state.isWaitingForAi)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else if (widget.state.currentChoices.isNotEmpty)
-          _ChoicesPanel(
-            choices: widget.state.currentChoices,
-            character: widget.state.character,
-          ),
-      ],
-    );
-  }
-}
 
-class _ChatPage extends StatelessWidget {
-  const _ChatPage({
-    required this.page,
-    this.imageBytes,
-    this.isGeneratingImage = false,
-    required this.genUiManager,
-    required this.genUiConversation,
-  });
-
-  final GameTurnPage page;
-  final List<int>? imageBytes;
-  final bool isGeneratingImage;
-  final GenUiManager genUiManager;
-  final GenUiConversation genUiConversation;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SceneImageWidget(
-            imageBytes: imageBytes,
-            isLoading: isGeneratingImage,
-          ),
-          const SizedBox(height: 16),
-          if (page.playerAction != null) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
-              ),
-              child: Text(
-                'Tu acción: ${page.playerAction}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  color: Theme.of(context).colorScheme.primary,
+        // Floating Choices Panel / Loading Indicator at Bottom
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.state.isWaitingForAi)
+                Container(
+                  width: double.infinity,
+                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.92),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: const Center(
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 12),
+                        Text(
+                          'El narrador está escribiendo la crónica...',
+                          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (widget.state.currentChoices.isNotEmpty)
+                _ChoicesPanel(
+                  choices: widget.state.currentChoices,
+                  character: widget.state.character,
+                  isExpanded: _isChoicesExpanded,
+                  onExpansionChanged: (expanded) {
+                    setState(() {
+                      _isChoicesExpanded = expanded;
+                    });
+                    if (expanded) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (widget.scrollController.hasClients) {
+                          widget.scrollController.animateTo(
+                            widget.scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeOutCubic,
+                          );
+                        }
+                      });
+                    }
+                  },
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-          MarkdownBody(
-            data: page.narratorText,
-            styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-              p: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
-            ),
+            ],
           ),
-          const SizedBox(height: 16),
-          // Usando genUiConversation.host que es un GenUiHost válido para GenUiSurface
-          if (page.isLast)
-            GenUiSurface(
-              surfaceId: 'active_game_surface',
-              host: genUiConversation.host,
-            ),
-          const SizedBox(height: 100), // Spacing for choices panel
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -280,14 +372,24 @@ class _SceneImageWidget extends StatelessWidget {
   }
 }
 
-class _ChoicesPanel extends StatelessWidget {
+class _ChoicesPanel extends StatefulWidget {
   const _ChoicesPanel({
     required this.choices,
     required this.character,
+    required this.isExpanded,
+    required this.onExpansionChanged,
   });
+
   final List<String> choices;
   final Character character;
+  final bool isExpanded;
+  final ValueChanged<bool> onExpansionChanged;
 
+  @override
+  State<_ChoicesPanel> createState() => _ChoicesPanelState();
+}
+
+class _ChoicesPanelState extends State<_ChoicesPanel> {
   void _showCustomActionDialog(BuildContext context) {
     final controller = TextEditingController();
     showModalBottomSheet(
@@ -351,52 +453,93 @@ class _ChoicesPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, -2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          )
+        ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'TU TURNO',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                  color: Theme.of(context).colorScheme.primary,
+          InkWell(
+            onTap: () => widget.onExpansionChanged(!widget.isExpanded),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'TU TURNO',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${widget.choices.length} opciones',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Icon(
+                    widget.isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (widget.isExpanded) ...[
+            const SizedBox(height: 12),
+            // Suggested choices
+            ...widget.choices.asMap().entries.map((entry) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _ChoiceButton(
+                  index: entry.key,
+                  text: entry.value,
+                  character: widget.character,
+                ),
+              );
+            }),
+            // Custom action button
+            const SizedBox(height: 4),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                 ),
               ),
-              const Icon(Icons.keyboard_arrow_up, size: 16, color: Colors.grey),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Suggested choices
-          ...choices.asMap().entries.map((entry) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _ChoiceButton(
-                index: entry.key,
-                text: entry.value,
-                character: character,
-              ),
-            );
-          }),
-          // Custom action button
-          const SizedBox(height: 4),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+              onPressed: () => _showCustomActionDialog(context),
+              icon: const Icon(Icons.edit_note, size: 20),
+              label: const Text('Otra acción...', style: TextStyle(fontSize: 13)),
             ),
-            onPressed: () => _showCustomActionDialog(context),
-            icon: const Icon(Icons.edit_note, size: 20),
-            label: const Text('Otra acción...', style: TextStyle(fontSize: 13)),
-          ),
+          ],
         ],
       ),
     );

@@ -8,8 +8,8 @@ String buildSystemPrompt({
   required String languageCode,
   bool isCompact = false,
 }) {
-  final characterDesc = _describeCharacter(character, system);
-  final systemContext = _systemContext(system, languageCode);
+  final characterDesc = _describeCharacter(character, system, isCompact: isCompact);
+  final systemContext = _systemContext(system, languageCode, isCompact: isCompact);
   final mechanics = isCompact
       ? _compactMechanics(system, languageCode)
       : _mechanicsInstructions(system, languageCode);
@@ -85,33 +85,76 @@ String _compactOutputFormat(RuleSystem system, String languageCode) {
 
   return isSpanishOrCatalan ? '''RESPONDE SOLO CON JSON VÁLIDO:
 {
-  "story": "Tu narración en Markdown.",
-  "choices": ["Opción 1", "Opción 2"],
-  "image_prompt": "RPG scene description in English",
+  "story": "Tu narración de la escena en Markdown (100-130 palabras, en 2 párrafos breves).",
+  "choices": [
+    "Opción 1: acción física/verbal muy corta",
+    "Opción 2: acción física/verbal muy corta",
+    "Opción 3: acción física/verbal muy corta",
+    "Opción 4: acción física/verbal muy corta",
+    "Opción 5: acción física/verbal muy corta"
+  ],
+  "image_prompt": "RPG scene description in English (max 10 words)",
   "character_updates": $characterUpdatesExample,
   "inventory_updates": [
-    {"action": "add", "item": {"id": "item1", "name": "Espada", "description": "...", "type": "weapon", "weight": 2.0}},
-    {"action": "remove", "id": "item_id_to_remove"}
+    {"action": "add", "item": {"id": "item1", "name": "Espada", "type": "weapon"}}
   ]
 }
 IMPORTANTE:
+- story: MÁXIMO 100-130 palabras en 2 párrafos breves.
+- choices: Proporciona 4 o 5 opciones de acciones muy breves (MÁXIMO 6 palabras por opción).
+- Omitir "inventory_updates" and "combat" si no hay cambios.
 - Stats permitidos en character_updates: $allowedStats.
 - Tipos de objeto válidos: $validTypes. El campo action debe ser "add" o "remove".''' : '''RESPOND ONLY WITH VALID JSON:
 {
-  "story": "Your markdown narration.",
-  "choices": ["Choice 1", "Choice 2"],
-  "image_prompt": "RPG scene description in English",
+  "story": "Your scene narration in Markdown (100-130 words, in 2 brief paragraphs).",
+  "choices": [
+    "Choice 1: very short physical/verbal action",
+    "Choice 2: very short physical/verbal action",
+    "Choice 3: very short physical/verbal action",
+    "Choice 4: very short physical/verbal action",
+    "Choice 5: very short physical/verbal action"
+  ],
+  "image_prompt": "RPG scene description in English (max 10 words)",
   "character_updates": $characterUpdatesExample,
   "inventory_updates": [
-    {"action": "add", "item": {"id": "id1", "name": "Item Name", "description": "...", "type": "misc", "weight": 0.5}}
+    {"action": "add", "item": {"id": "id1", "name": "Item Name", "type": "misc"}}
   ]
 }
 IMPORTANT:
+- story: MAXIMUM 100-130 words in 2 brief paragraphs.
+- choices: Provide 4 or 5 very short choice options (MAXIMUM 6 words per option).
+- Omit "inventory_updates" and "combat" if there are no changes.
 - Allowed stats in character_updates: $allowedStats.
 - Valid item types: $validTypes. Action field must be "add" or "remove".''';
 }
 
-String _describeCharacter(Character character, RuleSystem system) {
+String _describeCharacter(Character character, RuleSystem system, {bool isCompact = false}) {
+  if (isCompact) {
+    final statLines = character.stats.entries
+        .where((e) => system.statSchema.containsKey(e.key))
+        .map((e) => '${system.statSchema[e.key]!.label}: ${e.value}')
+        .join(', ');
+
+    final inventoryNames = character.inventory.map((i) => '${i.name}${i.isEquipped ? " [EQUIPADO]" : ""}').join(', ');
+    final inventoryStr = inventoryNames.isEmpty ? '' : '\n  Inventario: $inventoryNames';
+
+    final featureNames = character.features.map((f) => f.name).join(', ');
+    final featuresStr = featureNames.isEmpty ? '' : '\n  Rasgos: $featureNames';
+
+    final spellNames = character.spells.map((s) => s.name).join(', ');
+    final spellsStr = spellNames.isEmpty ? '' : '\n  Hechizos: $spellNames';
+
+    final backstory = character.backstory.length > 120
+        ? '${character.backstory.substring(0, 120)}...'
+        : character.backstory;
+
+    return '''PERSONAJE DEL JUGADOR:
+  Nombre: ${character.name}
+  Clase/Ocupación: ${character.characterClass}${character.race != null ? '\n  Raza/Origen: ${character.race}' : ''}${character.occupation != null ? '\n  Ocupación: ${character.occupation}' : ''}
+  Trasfondo: $backstory
+  Estadísticas: $statLines$featuresStr$spellsStr$inventoryStr''';
+  }
+
   final statLines = character.stats.entries
       .where((e) => system.statSchema.containsKey(e.key))
       .map((e) {
@@ -152,7 +195,28 @@ $spellLines
 $inventoryLines''';
 }
 
-String _systemContext(RuleSystem system, String languageCode) {
+String _systemContext(RuleSystem system, String languageCode, {bool isCompact = false}) {
+  if (isCompact) {
+    final isSpanishOrCatalan = languageCode == 'es' || languageCode == 'ca';
+    final isFrench = languageCode == 'fr';
+    switch (system.id) {
+      case RuleSystemId.dnd5e:
+        return isSpanishOrCatalan
+            ? 'Eres DM de D&D 5e. Narra aventura de fantasía épica de forma concisa y cinematográfica.'
+            : isFrench
+                ? 'Vous êtes le MD de D&D 5e. Racontez une aventure de fantasy de manière concise.'
+                : 'You are the DM for D&D 5e. Narrate an epic fantasy adventure concisely and cinematically.';
+      case RuleSystemId.pathfinder2e:
+        return isSpanishOrCatalan
+            ? 'Eres GM de Pathfinder 2e. Narra de forma concisa, equilibrando táctica y exploración en Golarion.'
+            : 'You are the GM for Pathfinder 2e. Narrate concisely, balancing tactics and exploration in Golarion.';
+      case RuleSystemId.callOfCthulhu7e:
+        return isSpanishOrCatalan
+            ? 'Eres el Guardián de La Llamada de Cthulhu 7e. Narra terror cósmico lovecraftiano de forma muy tensa y concisa.'
+            : 'You are the Keeper for Call of Cthulhu 7e. Narrate cosmic horror concisely and with high tension.';
+    }
+  }
+
   switch (system.id) {
     case RuleSystemId.dnd5e:
       return _dnd5eContext(languageCode);
@@ -291,7 +355,9 @@ Debes responder SIEMPRE con un JSON válido con esta estructura exacta:
   "choices": [
     "Opción 1: descripción de la acción",
     "Opción 2: descripción de la acción", 
-    "Opción 3: descripción de la acción"
+    "Opción 3: descripción de la acción",
+    "Opción 4: descripción de la acción",
+    "Opción 5: descripción de la acción"
   ],
   "image_prompt": "Descripción en inglés para generar imagen de la escena (máximo 100 palabras)",
   "character_updates": $characterUpdatesExample,
@@ -305,14 +371,14 @@ Debes responder SIEMPRE con un JSON válido con esta estructura exacta:
   },
   "session_title": "Título corto o null"
 }
-
+ 
 IMPORTANTE:
 - character_updates: Solo incluye las estadísticas que cambian de verdad. Estadísticas permitidas para este sistema de juego: $allowedStats.
 - inventory_updates y combat solo se incluyen si hay cambios reales.''' : '''MANDATORY RESPONSE FORMAT:
 You MUST always respond with valid JSON using this exact structure:
 {
   "story": "Scene narration in markdown.",
-  "choices": ["Choice 1", "Choice 2", "Choice 3"],
+  "choices": ["Choice 1", "Choice 2", "Choice 3", "Choice 4", "Choice 5"],
   "image_prompt": "English description for image generation.",
   "character_updates": $characterUpdatesExample,
   "inventory_updates": [
@@ -321,7 +387,7 @@ You MUST always respond with valid JSON using this exact structure:
   "combat": {"active": true, "enemies": []},
   "session_title": "..."
 }
-
+ 
 IMPORTANT:
 - character_updates: Only include actual stat changes. Allowed stats for this system: $allowedStats.
 - inventory_updates and combat should only be included if there are actual changes.''';

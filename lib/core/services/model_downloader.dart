@@ -65,7 +65,10 @@ class ModelDownloader {
       return modelsDir
           .listSync()
           .whereType<File>()
-          .where((f) => f.path.endsWith('.gguf'))
+          .where((f) =>
+              f.path.endsWith('.bin') ||
+              f.path.endsWith('.task') ||
+              f.path.endsWith('.litertlm'))
           .toList();
     } catch (e) {
       _log.warning('Error listando modelos descargados: $e');

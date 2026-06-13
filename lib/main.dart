@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:rol_genui/config/router/routes.dart';
 import 'package:rol_genui/core/logging/app_logger.dart';
 import 'package:rol_genui/injection.dart';
@@ -19,6 +20,7 @@ final _log = getLogger('Main');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterGemma.initialize();
   setupLogging();
   _log.info('Iniciando Rol GenUI...');
 

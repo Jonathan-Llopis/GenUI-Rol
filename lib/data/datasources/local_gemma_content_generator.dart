@@ -2,18 +2,18 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
-import 'package:llamadart/llamadart.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:rol_genui/core/logging/app_logger.dart';
 
-class LocalLlamaContentGenerator implements ContentGenerator {
-  LocalLlamaContentGenerator({
-    required this.engine,
+class LocalGemmaContentGenerator implements ContentGenerator {
+  LocalGemmaContentGenerator({
+    required this.model,
     this.systemInstruction,
   });
 
-  final LlamaEngine engine;
+  final InferenceModel model;
   final String? systemInstruction;
-  final _log = getLogger('LocalLlamaContentGenerator');
+  final _log = getLogger('LocalGemmaContentGenerator');
 
   final _a2uiController = StreamController<A2uiMessage>.broadcast();
   final _textController = StreamController<String>.broadcast();
@@ -40,6 +40,7 @@ class LocalLlamaContentGenerator implements ContentGenerator {
     if (_isProcessing.value) return;
     _isProcessing.value = true;
 
+    InferenceModelSession? session;
     try {
       String prompt = '';
       if (systemInstruction != null) {
@@ -59,8 +60,14 @@ class LocalLlamaContentGenerator implements ContentGenerator {
       if (message is UserMessage) currentText = message.text;
       prompt += 'User: $currentText\nAssistant: ';
 
+      session = await model.createSession(
+        temperature: 0.7,
+        topK: 40,
+      );
+
+      await session.addQueryChunk(Message.text(text: prompt, isUser: true));
       String fullResponse = '';
-      await for (final token in engine.generate(prompt)) {
+      await for (final token in session.getResponseAsync()) {
         if (_isProcessing.value == false) break;
         fullResponse += token;
         _textController.add(token);
@@ -70,9 +77,10 @@ class LocalLlamaContentGenerator implements ContentGenerator {
       _parseA2uiResponse(fullResponse);
 
     } catch (e, st) {
-      _log.severe('Error en LocalLlamaContentGenerator', e, st);
+      _log.severe('Error en LocalGemmaContentGenerator', e, st);
       _errorController.add(ContentGeneratorError(e, st));
     } finally {
+      await session?.close();
       _isProcessing.value = false;
     }
   }

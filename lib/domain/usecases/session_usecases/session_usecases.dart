@@ -105,14 +105,27 @@ class SendGameChoiceUsecase {
 }
 
 class LoadSessionUsecase {
-  const LoadSessionUsecase(this._repository);
+  const LoadSessionUsecase(this._repository, this._gameDataSource);
   final SessionRepository _repository;
+  final GameRemoteDataSource _gameDataSource;
 
-  Future<({GameSession? session, List<StoryMessage> messages})> call(
-    String sessionId,
-  ) async {
+  Future<({GameSession? session, List<StoryMessage> messages})> call({
+    required String sessionId,
+    required Character character,
+    required String languageCode,
+  }) async {
     final session = await _repository.getSession(sessionId);
     final messages = await _repository.getMessages(sessionId);
+
+    if (session != null) {
+      _gameDataSource.initializeHistory(
+        character: character,
+        system: character.ruleSystem,
+        languageCode: languageCode,
+        messages: messages,
+      );
+    }
+
     return (session: session, messages: messages);
   }
 }

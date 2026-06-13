@@ -54,7 +54,7 @@ Future<void> configureDependencies() async {
   // ── Session use cases ───────────────────────────────────────────────────────
   sl.registerLazySingleton(() => StartGameSessionUsecase(sl(), sl()));
   sl.registerLazySingleton(() => SendGameChoiceUsecase(sl(), sl()));
-  sl.registerLazySingleton(() => LoadSessionUsecase(sl()));
+  sl.registerLazySingleton(() => LoadSessionUsecase(sl(), sl()));
   sl.registerLazySingleton(() => GetSessionsForCharacterUsecase(sl()));
   sl.registerLazySingleton(() => DeleteSessionUsecase(sl()));
   sl.registerLazySingleton(() => GenerateSceneImageUsecase(sl()));

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:genui/genui.dart';
 import 'package:rol_genui/data/datasources/chat_datasource.dart';
-import 'package:rol_genui/data/datasources/local_llama_content_generator.dart';
+import 'package:rol_genui/data/datasources/local_gemma_content_generator.dart';
 import 'package:rol_genui/domain/entities/character.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
 import 'package:rol_genui/injection.dart';
@@ -17,8 +17,13 @@ import 'package:rol_genui/presentation/screens/game_session/widgets/game_combat_
 import 'package:rol_genui/presentation/screens/game_session/widgets/game_inventory_view.dart';
 
 class ScreenGameSession extends StatefulWidget {
-  const ScreenGameSession({super.key, required this.character});
+  const ScreenGameSession({
+    super.key,
+    required this.character,
+    this.sessionId,
+  });
   final Character character;
+  final String? sessionId;
 
   @override
   State<ScreenGameSession> createState() => _ScreenGameSessionState();
@@ -26,7 +31,7 @@ class ScreenGameSession extends StatefulWidget {
 
 class _ScreenGameSessionState extends State<ScreenGameSession> {
   late final GenUiManager _genUiManager;
-  LocalLlamaContentGenerator? _contentGenerator;
+  LocalGemmaContentGenerator? _contentGenerator;
   GenUiConversation? _genUiConversation;
 
   @override
@@ -42,8 +47,8 @@ class _ScreenGameSessionState extends State<ScreenGameSession> {
     final engine = dataSource.engine;
 
     if (engine != null) {
-      _contentGenerator = LocalLlamaContentGenerator(
-        engine: engine,
+      _contentGenerator = LocalGemmaContentGenerator(
+        model: engine,
         systemInstruction: _buildGenUiSystemPrompt(widget.character.ruleSystem),
       );
       _genUiConversation = GenUiConversation(
@@ -76,13 +81,23 @@ Keep the UI thematic for a ${system.genre} RPG.''';
         final bloc = sl<GameBloc>();
         final locale = context.read<LanguageBloc>().state.locale;
         final langCode = locale.languageCode;
-        bloc.add(
-          StartNewGame(
-            character: widget.character,
-            system: widget.character.ruleSystem,
-            languageCode: langCode,
-          ),
-        );
+        if (widget.sessionId != null) {
+          bloc.add(
+            LoadExistingSession(
+              sessionId: widget.sessionId!,
+              character: widget.character,
+              languageCode: langCode,
+            ),
+          );
+        } else {
+          bloc.add(
+            StartNewGame(
+              character: widget.character,
+              system: widget.character.ruleSystem,
+              languageCode: langCode,
+            ),
+          );
+        }
         return bloc;
       },
       child: BlocListener<GameBloc, GameState>(

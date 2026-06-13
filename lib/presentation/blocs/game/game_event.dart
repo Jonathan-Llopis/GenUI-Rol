@@ -35,11 +35,16 @@ class MakeChoice extends GameEvent {
 }
 
 class LoadExistingSession extends GameEvent {
-  const LoadExistingSession({required this.sessionId, required this.character});
+  const LoadExistingSession({
+    required this.sessionId,
+    required this.character,
+    required this.languageCode,
+  });
   final String sessionId;
   final Character character;
+  final String languageCode;
   @override
-  List<Object?> get props => [sessionId, character];
+  List<Object?> get props => [sessionId, character, languageCode];
 }
 
 class RequestSceneImage extends GameEvent {

@@ -192,7 +192,11 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     _log.info('LoadExistingSession: id=${event.sessionId}');
     emit(const GameLoading(message: 'Cargando sesión...'));
     try {
-      final result = await loadSessionUsecase(event.sessionId);
+      final result = await loadSessionUsecase(
+        sessionId: event.sessionId,
+        character: event.character,
+        languageCode: event.languageCode,
+      );
       if (isClosed) return;
 
       if (result.session == null) {

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rol_genui/domain/entities/character.dart';
 import 'package:rol_genui/domain/entities/rule_system.dart';
+import 'package:rol_genui/domain/entities/game_session.dart';
+import 'package:rol_genui/domain/usecases/session_usecases/session_usecases.dart';
 import 'package:rol_genui/injection.dart';
 import 'package:rol_genui/presentation/blocs/character/character_bloc.dart';
 
@@ -68,6 +70,7 @@ class _CharacterSheetView extends StatelessWidget {
                 ),
               ),
             ],
+            _SavedSessionsSection(character: character),
           ],
         ),
       ),
@@ -379,6 +382,123 @@ class _SubSectionTitle extends StatelessWidget {
         color: Theme.of(context).colorScheme.primary,
         letterSpacing: 1.2,
       ),
+    );
+  }
+}
+
+class _SavedSessionsSection extends StatefulWidget {
+  const _SavedSessionsSection({required this.character});
+  final Character character;
+
+  @override
+  State<_SavedSessionsSection> createState() => _SavedSessionsSectionState();
+}
+
+class _SavedSessionsSectionState extends State<_SavedSessionsSection> {
+  late Future<List<GameSession>> _sessionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSessions();
+  }
+
+  void _loadSessions() {
+    _sessionsFuture = sl<GetSessionsForCharacterUsecase>()(widget.character.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<GameSession>>(
+      future: _sessionsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Text('Error al cargar partidas: ${snapshot.error}');
+        }
+        final sessions = snapshot.data ?? [];
+        if (sessions.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            const _SectionTitle(title: 'Partidas Guardadas'),
+            const SizedBox(height: 8),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: sessions.length,
+              itemBuilder: (context, index) {
+                final session = sessions[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.book_outlined),
+                    title: Text(session.title),
+                    subtitle: Text(
+                      session.summary,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('¿Eliminar partida?'),
+                                content: const Text('Esta acción no se puede deshacer.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await sl<DeleteSessionUsecase>()(session.id);
+                              setState(() {
+                                _loadSessions();
+                              });
+                            }
+                          },
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
+                    onTap: () {
+                      context.goNamed(
+                        'game-session',
+                        pathParameters: {
+                          'systemId': widget.character.ruleSystem.idString,
+                          'characterId': widget.character.id,
+                        },
+                        extra: widget.character,
+                        queryParameters: {
+                          'sessionId': session.id,
+                        },
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

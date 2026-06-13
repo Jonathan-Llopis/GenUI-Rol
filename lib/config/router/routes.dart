@@ -77,7 +77,11 @@ final GoRouter router = GoRouter(
               name: 'game-session',
               builder: (context, state) {
                 final character = state.extra as Character;
-                return ScreenGameSession(character: character);
+                final sessionId = state.uri.queryParameters['sessionId'];
+                return ScreenGameSession(
+                  character: character,
+                  sessionId: sessionId,
+                );
               },
             ),
           ],
